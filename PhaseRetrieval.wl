@@ -32,20 +32,24 @@ GerchbergSaxton::usage=
 
 
 GerchbergSaxton::uncov="Gerchberg-Saxton algorithm cannot converge to a target threshold of `1` in `2` iterations."
+GerchbergSaxton::dfdim="Dimensions of input and output are different."
 GerchbergSaxton::smxit="The maximum iterations should be at least `1`."
+GerchbergSaxton::method="Unknown method `1`."
+GerchbergSaxton::unspec="Unspecified error."
 
 
 Options[GerchbergSaxton]={
  "ConvergenceEpsilon"->Automatic,
  MaxIterations->Automatic,
- "MonitorFunction"->None
+ "MonitorFunction"->None,
+ Method->Automatic
 }
 
 
 SyntaxInformation[GerchbergSaxton]={"ArgumentsPattern"->{_,_,OptionsPattern[]}}
 
 
-SetAttributes[GerchbergSaxton,ReadProtected]
+(*SetAttributes[GerchbergSaxton,ReadProtected]*)
 
 
 Begin["`Private`"]
@@ -81,37 +85,77 @@ grayscaleQ[_]=False
 Begin["`GerchbergSaxton`"]
 
 
-get\[CurlyEpsilon][Automatic]:=ControlActive[0.05,0.005]
+getMethod[method_List]:=First[method]
+getMethod[method:(_String|_Symbol)]:=method
+getMethod[method_]:=(Message[GerchbergSaxton::method,method];Throw[$Failed,"getMethod"])
+
+
+get\[CurlyEpsilon][Automatic]:=ControlActive[0.05,0.004]
 get\[CurlyEpsilon][\[CurlyEpsilon]_/;\[CurlyEpsilon]\[Element]Reals&&\[CurlyEpsilon]>=0]:=N[\[CurlyEpsilon]]
-get\[CurlyEpsilon][_]:=$Failed
+get\[CurlyEpsilon][_]:=Throw[$Failed,"get\[CurlyEpsilon]"]
 
 
 getIter[Automatic]:=ControlActive[10,250]
-getIter[n:(_Integer|Infinity)]:=If[n>=5,n,Message[GerchbergSaxton::smxit,5];$Failed]
-getIter[_]:=$Failed
+getIter[n:(_Integer|Infinity)]:=If[n>=5,n,Message[GerchbergSaxton::smxit,5];Throw[$Failed,"spec"]]
+getIter[_]:=Throw[$Failed,"getIter"]
 
 
-constriant[f_][\[CurlyPhi]_]:=f*Exp[I*\[CurlyPhi]]
+getAA\[Beta]["AdaptiveAdditive",opts:OptionsPattern[{"Beta"->N[1/GoldenRatio]}]]:=
+ If[0<=OptionValue["Beta"]<=1,N@OptionValue["Beta"],Throw[$Failed,"getAA\[Beta]"]]
+getAA\[Beta][{"AdaptiveAdditive",{opts_}|PatternSequence[]}]:=getAA\[Beta]["AdaptiveAdditive",opts]
+getAA\[Beta][___]:=Throw[$Failed,"getAA\[Beta]"]
 
 
-iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),monitor_]/;Dimensions[inputI]==Dimensions[outputI]:=
+constriant[f_][ff_]:=f*Exp[I*Arg[ff]]
+
+
+constriantAA[f_,\[Beta]_][ff_]:=(\[Beta]*f+(1-\[Beta])ff)Exp[I*Arg[ff]]
+
+
+iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),monitor_]:=
  Module[{i=0,
    f=inputI*Exp[I*RandomReal[2\[Pi],Dimensions[inputI]]],
    ff=inputI},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
-   ff=opticalInverseFourier@constriant[outputI]@Arg@opticalFourier[f];
-   f=constriant[inputI]@Arg[ff];
+   ff=opticalInverseFourier@constriant[outputI]@opticalFourier[f];
+   f=constriant[inputI][ff];
    ++i;
    monitor[<|"Iteration"->i,"CurrentValue"->f|>]
   ];
   If[i>=maxIter,Message[GerchbergSaxton::uncov,\[CurlyEpsilon],maxIter]];
   f
  ]
-iGerchbergSaxton[___]=$Failed
+iGerchbergSaxton[___]:=Throw[$Failed,"iGerchbergSaxton"]
 
 
-GerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,OptionsPattern[]]:=
- iGerchbergSaxton[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue["MonitorFunction"]]
+iAdaptiveAdditive[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),\[Beta]_/;0<=\[Beta]<=1,monitor_]:=
+ Module[{i=0,
+   f=inputI*Exp[I*RandomReal[2\[Pi],Dimensions[inputI]]],
+   ff=inputI},
+  While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
+   ff=opticalInverseFourier@constriantAA[outputI,\[Beta]]@opticalFourier[f];
+   f=constriant[inputI][ff];
+   ++i;
+   monitor[<|"Iteration"->i,"CurrentValue"->f|>]
+  ];
+  If[i>=maxIter,Message[GerchbergSaxton::uncov,\[CurlyEpsilon],maxIter]];
+  f
+ ]
+iAdaptiveAdditive[___]:=Throw[$Failed,"iAdaptiveAdditive"]
+
+
+GerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,OptionsPattern[]]:=Catch[
+ If[Dimensions[inputI]!=Dimensions[outputI],Message[GerchbergSaxton::dfdim];Throw[$Failed,"spec"]];
+ Switch[getMethod@OptionValue[Method],
+  Automatic,
+   iGerchbergSaxton[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue["MonitorFunction"]],
+  "AdaptiveAdditive",
+   iAdaptiveAdditive[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],getAA\[Beta]@OptionValue[Method],OptionValue["MonitorFunction"]],
+  _,
+   Message[GerchbergSaxton::method,getMethod@OptionValue[Method]];Throw[$Failed,"spec"]
+ ],
+ _,(If[#2!="spec",Message[GerchbergSaxton::unspec]];#1)&
+]
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,outputI,opts]
 GerchbergSaxton[inputI_?MatrixQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputI,ImageData@outputI,opts]
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,ImageData@outputI,opts]
