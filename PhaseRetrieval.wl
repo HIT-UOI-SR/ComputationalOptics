@@ -36,9 +36,9 @@ GerchbergSaxton::smxit="The maximum iterations should be at least `1`."
 
 
 Options[GerchbergSaxton]={
- "ConvergenceThreshold"->Automatic,
+ "ConvergenceEpsilon"->Automatic,
  MaxIterations->Automatic,
- "EvaluationMonitor"->None
+ "MonitorFunction"->None
 }
 
 
@@ -82,19 +82,19 @@ Begin["`GerchbergSaxton`"]
 
 
 get\[CurlyEpsilon][Automatic]:=ControlActive[0.05,0.005]
-get\[CurlyEpsilon][\[CurlyEpsilon]_/;\[CurlyEpsilon]\[Element]Reals&&\[CurlyEpsilon]>=0]:=\[CurlyEpsilon]
+get\[CurlyEpsilon][\[CurlyEpsilon]_/;\[CurlyEpsilon]\[Element]Reals&&\[CurlyEpsilon]>=0]:=N[\[CurlyEpsilon]]
 get\[CurlyEpsilon][_]:=$Failed
 
 
 getIter[Automatic]:=ControlActive[10,250]
-getIter[n_Integer]:=If[n>=5,n,Message[GerchbergSaxton::smxit,5];$Failed]
+getIter[n:(_Integer|Infinity)]:=If[n>=5,n,Message[GerchbergSaxton::smxit,5];$Failed]
 getIter[_]:=$Failed
 
 
 constriant[f_][\[CurlyPhi]_]:=f*Exp[I*\[CurlyPhi]]
 
 
-iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter_Integer,monitor_]/;Dimensions[inputI]==Dimensions[outputI]:=
+iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),monitor_]/;Dimensions[inputI]==Dimensions[outputI]:=
  Module[{i=0,
    f=inputI*Exp[I*RandomReal[2\[Pi],Dimensions[inputI]]],
    ff=inputI},
@@ -111,7 +111,7 @@ iGerchbergSaxton[___]=$Failed
 
 
 GerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,OptionsPattern[]]:=
- iGerchbergSaxton[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceThreshold"],getIter@OptionValue[MaxIterations],OptionValue["EvaluationMonitor"]]
+ iGerchbergSaxton[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue["MonitorFunction"]]
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,outputI,opts]
 GerchbergSaxton[inputI_?MatrixQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputI,ImageData@outputI,opts]
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,ImageData@outputI,opts]
