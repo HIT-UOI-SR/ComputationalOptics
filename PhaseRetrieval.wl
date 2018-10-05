@@ -1,5 +1,9 @@
 (* ::Package:: *)
 
+(* ::Section::Closed:: *)
+(*License*)
+
+
 (* MIT License
  * 
  * Copyright (c) 2018 miRoox
@@ -24,6 +28,10 @@
  *)
 
 
+(* ::Section:: *)
+(*Interface*)
+
+
 BeginPackage["PhaseRetrieval`"]
 
 
@@ -36,6 +44,7 @@ GerchbergSaxton::dfdim="Dimensions of input and output are different."
 GerchbergSaxton::smxit="The maximum iterations should be at least `1`."
 GerchbergSaxton::method="Unknown method `1`."
 GerchbergSaxton::unspec="Unspecified error."
+GerchbergSaxton::uearg="Unexpected arguments in `1`."
 
 
 Options[GerchbergSaxton]={
@@ -52,12 +61,12 @@ SyntaxInformation[GerchbergSaxton]={"ArgumentsPattern"->{_,_,OptionsPattern[]}}
 (*SetAttributes[GerchbergSaxton,ReadProtected]*)
 
 
-Begin["`Private`"]
-AppendTo[$ContextPath,$Context]
-
-
 (* ::Section:: *)
 (*Implement*)
+
+
+Begin["`Private`"]
+AppendTo[$ContextPath,$Context]
 
 
 (* ::Subsection:: *)
@@ -159,9 +168,14 @@ GerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,OptionsPattern[]]:=Catch[
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,outputI,opts]
 GerchbergSaxton[inputI_?MatrixQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputI,ImageData@outputI,opts]
 GerchbergSaxton[inputI_?grayscaleQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,ImageData@outputI,opts]
+GerchbergSaxton[args___]:=(Message[GerchbergSaxton::uearg,HoldForm[GerchbergSaxton[args]]];$Failed)
 
 
 End[]
+
+
+(* ::Subsection::Closed:: *)
+(*End*)
 
 
 End[]
