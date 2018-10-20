@@ -36,7 +36,7 @@ BeginPackage["PhaseRetrieval`"]
 
 
 GerchbergSaxton::usage=
- "GerchbergSaxton[\!\(\*SubscriptBox[\(I\), \(i\)]\), \!\(\*SubscriptBox[\(I\), \(o\)]\)] retrieve phase from input plane amplitude \!\(\*SubscriptBox[\(I\), \(i\)]\) and output plane amplitude \!\(\*SubscriptBox[\(I\), \(o\)]\) by Gerchberg-Saxton algorithm."
+ "GerchbergSaxton[inputA, outputA] retrieve phase from input plane amplitude inputA and output plane amplitude outputA by Gerchberg-Saxton algorithm."
 
 
 GerchbergSaxton::uncov="Gerchberg-Saxton algorithm cannot converge to a target threshold of `1` in `2` iterations."
@@ -121,13 +121,13 @@ constriant[f_][ff_]:=f*Exp[I*Arg[ff]]
 constriantAA[f_,\[Beta]_][ff_]:=(\[Beta]*f+(1-\[Beta])ff)Exp[I*Arg[ff]]
 
 
-iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),monitor_]:=
+iGerchbergSaxton[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),monitor_]:=
  Module[{i=0,
-   f=inputI*Exp[I*RandomReal[2\[Pi],Dimensions[inputI]]],
-   ff=inputI},
+   f=inputA*Exp[I*RandomReal[2\[Pi],Dimensions[inputA]]],
+   ff=inputA},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
-   ff=opticalInverseFourier@constriant[outputI]@opticalFourier[f];
-   f=constriant[inputI][ff];
+   ff=opticalInverseFourier@constriant[outputA]@opticalFourier[f];
+   f=constriant[inputA][ff];
    ++i;
    monitor[<|"Iteration"->i,"CurrentValue"->f|>]
   ];
@@ -137,13 +137,13 @@ iGerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(
 iGerchbergSaxton[___]:=Throw[$Failed,"iGerchbergSaxton"]
 
 
-iAdaptiveAdditive[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),\[Beta]_/;0<=\[Beta]<=1,monitor_]:=
+iAdaptiveAdditive[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),\[Beta]_/;0<=\[Beta]<=1,monitor_]:=
  Module[{i=0,
-   f=inputI*Exp[I*RandomReal[2\[Pi],Dimensions[inputI]]],
-   ff=inputI},
+   f=inputA*Exp[I*RandomReal[2\[Pi],Dimensions[inputA]]],
+   ff=inputA},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
-   ff=opticalInverseFourier@constriantAA[outputI,\[Beta]]@opticalFourier[f];
-   f=constriant[inputI][ff];
+   ff=opticalInverseFourier@constriantAA[outputA,\[Beta]]@opticalFourier[f];
+   f=constriant[inputA][ff];
    ++i;
    monitor[<|"Iteration"->i,"CurrentValue"->f|>]
   ];
@@ -153,21 +153,21 @@ iAdaptiveAdditive[inputI_?MatrixQ,outputI_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:
 iAdaptiveAdditive[___]:=Throw[$Failed,"iAdaptiveAdditive"]
 
 
-GerchbergSaxton[inputI_?MatrixQ,outputI_?MatrixQ,OptionsPattern[]]:=Catch[
- If[Dimensions[inputI]!=Dimensions[outputI],Message[GerchbergSaxton::dfdim];Throw[$Failed,"spec"]];
+GerchbergSaxton[inputA_?MatrixQ,outputA_?MatrixQ,OptionsPattern[]]:=Catch[
+ If[Dimensions[inputA]!=Dimensions[outputA],Message[GerchbergSaxton::dfdim];Throw[$Failed,"spec"]];
  Switch[getMethod@OptionValue[Method],
   Automatic,
-   iGerchbergSaxton[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue["MonitorFunction"]],
+   iGerchbergSaxton[inputA,outputA,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue["MonitorFunction"]],
   "AdaptiveAdditive",
-   iAdaptiveAdditive[inputI,outputI,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],getAA\[Beta]@OptionValue[Method],OptionValue["MonitorFunction"]],
+   iAdaptiveAdditive[inputA,outputA,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],getAA\[Beta]@OptionValue[Method],OptionValue["MonitorFunction"]],
   _,
    Message[GerchbergSaxton::method,getMethod@OptionValue[Method]];Throw[$Failed,"spec"]
  ],
  _,(If[#2!="spec",Message[GerchbergSaxton::unspec]];#1)&
 ]
-GerchbergSaxton[inputI_?grayscaleQ,outputI_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,outputI,opts]
-GerchbergSaxton[inputI_?MatrixQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputI,ImageData@outputI,opts]
-GerchbergSaxton[inputI_?grayscaleQ,outputI_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputI,ImageData@outputI,opts]
+GerchbergSaxton[inputA_?grayscaleQ,outputA_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputA,outputA,opts]
+GerchbergSaxton[inputA_?MatrixQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputA,ImageData@outputA,opts]
+GerchbergSaxton[inputA_?grayscaleQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputA,ImageData@outputA,opts]
 GerchbergSaxton[args___]:=(Message[GerchbergSaxton::uearg,HoldForm[GerchbergSaxton[args]]];$Failed)
 
 
