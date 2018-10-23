@@ -76,6 +76,7 @@ AppendTo[$ContextPath,$Context]
 
 opticalFourier[data_?MatrixQ,opts:OptionsPattern[Fourier]]:=
  RotateLeft[Fourier[data,opts],Dimensions[data]/2]
+
 opticalInverseFourier[data_?MatrixQ,opts:OptionsPattern[InverseFourier]]:=
  Chop@InverseFourier[RotateRight[data,Dimensions[data]/2],opts]
 
@@ -112,6 +113,7 @@ getIter[_]:=Throw[$Failed,"getIter"]
 
 getAA\[Beta]["AdaptiveAdditive",opts:OptionsPattern[{"Beta"->N[1/GoldenRatio]}]]:=
  If[0<=OptionValue["Beta"]<=1,N@OptionValue["Beta"],Throw[$Failed,"getAA\[Beta]"]]
+
 getAA\[Beta][{"AdaptiveAdditive",{opts_}|PatternSequence[]}]:=getAA\[Beta]["AdaptiveAdditive",opts]
 getAA\[Beta][___]:=Throw[$Failed,"getAA\[Beta]"]
 
@@ -122,7 +124,12 @@ constriant[f_][ff_]:=f*Exp[I*Arg[ff]]
 constriantAA[f_,\[Beta]_][ff_]:=(\[Beta]*f+(1-\[Beta])ff)Exp[I*Arg[ff]]
 
 
-iGerchbergSaxton[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),seed_,monitor_]:=
+iGerchbergSaxton[inputA_?MatrixQ,
+                 outputA_?MatrixQ,
+                 \[CurlyEpsilon]_Real,
+                 maxIter:(_Integer|Infinity),
+                 seed_,
+                 monitor_]:=
  Module[{i=0,
    f=inputA*Exp[I*BlockRandom[RandomReal[2\[Pi],Dimensions[inputA]],RandomSeeding->seed]],
    ff=inputA},
@@ -135,12 +142,19 @@ iGerchbergSaxton[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(
   If[i>=maxIter,Message[GerchbergSaxton::uncov,\[CurlyEpsilon],maxIter]];
   f
  ]
+
 iGerchbergSaxton[___]:=Throw[$Failed,"iGerchbergSaxton"]
 
 
-iAdaptiveAdditive[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:(_Integer|Infinity),\[Beta]_/;0<=\[Beta]<=1,monitor_]:=
+iAdaptiveAdditive[inputA_?MatrixQ,
+                  outputA_?MatrixQ,
+                  \[CurlyEpsilon]_Real,
+                  maxIter:(_Integer|Infinity),
+                  \[Beta]_/;0<=\[Beta]<=1,
+                  seed_,
+                  monitor_]:=
  Module[{i=0,
-   f=inputA*Exp[I*BlockRandom[RandomReal[2\[Pi],Dimensions[inputA]]]],
+   f=inputA*Exp[I*BlockRandom[RandomReal[2\[Pi],Dimensions[inputA]],RandomSeeding->seed]],
    ff=inputA},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
    ff=opticalInverseFourier@constriantAA[outputA,\[Beta]]@opticalFourier[f];
@@ -151,6 +165,7 @@ iAdaptiveAdditive[inputA_?MatrixQ,outputA_?MatrixQ,\[CurlyEpsilon]_Real,maxIter:
   If[i>=maxIter,Message[GerchbergSaxton::uncov,\[CurlyEpsilon],maxIter]];
   f
  ]
+
 iAdaptiveAdditive[___]:=Throw[$Failed,"iAdaptiveAdditive"]
 
 
@@ -158,18 +173,41 @@ GerchbergSaxton[inputA_?MatrixQ,outputA_?MatrixQ,OptionsPattern[]]:=Catch[
  If[Dimensions[inputA]!=Dimensions[outputA],Message[GerchbergSaxton::dfdim];Throw[$Failed,"spec"]];
  Switch[getMethod@OptionValue[Method],
   Automatic,
-   iGerchbergSaxton[inputA,outputA,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],OptionValue[RandomSeeding],OptionValue["MonitorFunction"]],
+   iGerchbergSaxton[
+    inputA,
+    outputA,
+    get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],
+    getIter@OptionValue[MaxIterations],
+    OptionValue[RandomSeeding],
+    OptionValue["MonitorFunction"]
+   ],
   "AdaptiveAdditive",
-   iAdaptiveAdditive[inputA,outputA,get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],getIter@OptionValue[MaxIterations],getAA\[Beta]@OptionValue[Method],OptionValue[RandomSeeding],OptionValue["MonitorFunction"]],
+   iAdaptiveAdditive[
+    inputA,
+    outputA,
+    get\[CurlyEpsilon]@OptionValue["ConvergenceEpsilon"],
+    getIter@OptionValue[MaxIterations],
+    getAA\[Beta]@OptionValue[Method],
+    OptionValue[RandomSeeding],
+    OptionValue["MonitorFunction"]
+   ],
   _,
    Message[GerchbergSaxton::method,getMethod@OptionValue[Method]];Throw[$Failed,"spec"]
  ],
  _,(If[#2!="spec",Message[GerchbergSaxton::unspec]];#1)&
 ]
-GerchbergSaxton[inputA_?grayscaleQ,outputA_?MatrixQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputA,outputA,opts]
-GerchbergSaxton[inputA_?MatrixQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[inputA,ImageData@outputA,opts]
-GerchbergSaxton[inputA_?grayscaleQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=GerchbergSaxton[ImageData@inputA,ImageData@outputA,opts]
-GerchbergSaxton[args___]:=(Message[GerchbergSaxton::uearg,HoldForm[GerchbergSaxton[args]]];$Failed)
+
+GerchbergSaxton[inputA_?grayscaleQ,outputA_?MatrixQ,opts:OptionsPattern[]]:=
+ GerchbergSaxton[ImageData@inputA,outputA,opts]
+
+GerchbergSaxton[inputA_?MatrixQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=
+ GerchbergSaxton[inputA,ImageData@outputA,opts]
+
+GerchbergSaxton[inputA_?grayscaleQ,outputA_?grayscaleQ,opts:OptionsPattern[]]:=
+ GerchbergSaxton[ImageData@inputA,ImageData@outputA,opts]
+
+GerchbergSaxton[args___]:=
+ (Message[GerchbergSaxton::uearg,HoldForm[GerchbergSaxton[args]]];$Failed)
 
 
 End[]
