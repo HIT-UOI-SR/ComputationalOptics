@@ -118,10 +118,10 @@ getAA\[Beta][{"AdaptiveAdditive",{opts_}|PatternSequence[]}]:=getAA\[Beta]["Adap
 getAA\[Beta][___]:=Throw[$Failed,"getAA\[Beta]"]
 
 
-constriant[f_][ff_]:=f*Exp[I*Arg[ff]]
+constraint[f_][ff_]:=f*Exp[I*Arg[ff]]
 
 
-constriantAA[f_,\[Beta]_][ff_]:=(\[Beta]*f+(1-\[Beta])ff)Exp[I*Arg[ff]]
+constraintAA[f_,\[Beta]_][ff_]:=(\[Beta]*f+(1-\[Beta])ff)Exp[I*Arg[ff]]
 
 
 iGerchbergSaxton[inputA_?MatrixQ,
@@ -134,8 +134,8 @@ iGerchbergSaxton[inputA_?MatrixQ,
    f=inputA*Exp[I*BlockRandom[RandomReal[2\[Pi],Dimensions[inputA]],RandomSeeding->seed]],
    ff=inputA},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
-   ff=opticalInverseFourier@constriant[outputA]@opticalFourier[f];
-   f=constriant[inputA][ff];
+   ff=opticalInverseFourier@constraint[outputA]@opticalFourier[f];
+   f=constraint[inputA][ff];
    ++i;
    monitor[<|"Iteration"->i,"CurrentValue"->f|>]
   ];
@@ -157,8 +157,8 @@ iAdaptiveAdditive[inputA_?MatrixQ,
    f=inputA*Exp[I*BlockRandom[RandomReal[2\[Pi],Dimensions[inputA]],RandomSeeding->seed]],
    ff=inputA},
   While[i<maxIter&&mse[f,ff]>\[CurlyEpsilon],
-   ff=opticalInverseFourier@constriantAA[outputA,\[Beta]]@opticalFourier[f];
-   f=constriant[inputA][ff];
+   ff=opticalInverseFourier@constraintAA[outputA,\[Beta]]@opticalFourier[f];
+   f=constraint[inputA][ff];
    ++i;
    monitor[<|"Iteration"->i,"CurrentValue"->f|>]
   ];
