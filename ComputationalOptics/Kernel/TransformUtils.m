@@ -48,3 +48,9 @@ InverseFourierShift[img_?ImageQ]:=
     ImageType@img,
     Options@img
   ]
+
+
+PackageScope["opticalFourier"]
+opticalFourier[data_?ArrayQ]:=FourierShift@Fourier[data,FourierParameters->{0,1}]
+PackageScope["opticalInverseFourier"]
+opticalInverseFourier[data_?ArrayQ]:=InverseFourier[InverseFourierShift@data,FourierParameters->{0,1}]
