@@ -9,11 +9,11 @@ PackageScope["opticalInverseFourier"]
 PackageScope["realNumberQ"]
 
 
-PackageExport["DiffractionAS"]
-SetUsage[DiffractionAS,
-  "DiffractionAS[input$, \[Lambda]$, d$] calculate diffraction of input$ field with distance d$ and wavelength \[Lambda]$ based on angular spectrum."
+PackageExport["PropagationAS"]
+SetUsage[PropagationAS,
+  "PropagationAS[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on angular spectrum."
 ]
-DiffractionAS::invarg="Call `1` with the invalid argument."
+PropagationAS::invarg="Call `1` with the invalid argument."
 tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
   Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
     Outer[
@@ -25,6 +25,6 @@ tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
     ]
   ]
 ]
-DiffractionAS[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
+PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
   opticalInverseFourier[opticalFourier[input]tfASarray[lambda,d,Sequence@@Dimensions[input]]]
-call_DiffractionAS:=(Message[DiffractionAS::invarg,HoldForm@call];$Failed)
+call_PropagationAS:=(Message[PropagationAS::invarg,HoldForm@call];$Failed)
