@@ -11,13 +11,13 @@ PackageScope["realNumberQ"]
 
 PackageExport["PropagationAS"]
 SetUsage[PropagationAS,
-  "PropagationAS[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on angular spectrum."
+  "PropagationAS[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the angular spectrum."
 ]
 PropagationAS::invarg="Call `1` with the invalid argument."
 tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
   Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
     Outer[
-      With[{ph=2Pi I d Sqrt[0.I+1/lambda-#1^2-#2^2]},
+      With[{ph=2Pi I d Sqrt[0.I+1/lambda^2-#1^2-#2^2]},
         If[Re[ph]>th,Exp[ph],0.]
       ]&,
       Range[w]-w/2.,
