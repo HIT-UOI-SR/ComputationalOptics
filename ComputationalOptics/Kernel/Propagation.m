@@ -28,3 +28,26 @@ tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
 PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
   opticalInverseFourier[opticalFourier[input]tfASarray[lambda,d,Sequence@@Dimensions[input]]]
 call_PropagationAS:=(Message[PropagationAS::invarg,HoldForm@call];$Failed)
+
+
+PackageExport["PropagationFresnel1"]
+SetUsage[PropagationFresnel1,
+  "PropagationFresnel1[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the Fresnel diffraction in the form of Fourier transform."
+]
+PropagationFresnel1::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
+PropagationFresnel1::invarg="Call `1` with the invalid argument."
+fresnel1Q:=Memoized@
+  Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+    Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
+      Range[w]-w/2.,
+      Range[l]-l/2.
+    ]
+  ]
+checkFresnel1Cond[lambda_,d_,{w_,l_}]:=
+  If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel1::cond,d]]
+PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
+  With[{q=fresnel1Q[lambda,d,Sequence@@Dimensions[input]]},
+    checkFresnel1Cond[lambda,d,Dimensions[input]];
+    opticalFourier[input*q]q*Exp[2Pi I d/lambda]/(I lambda d)
+  ]
+call_PropagationFresnel1:=(Message[PropagationFresnel1::invarg,HoldForm@call];$Failed)

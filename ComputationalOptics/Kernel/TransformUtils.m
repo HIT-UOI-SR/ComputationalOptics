@@ -51,6 +51,6 @@ InverseFourierShift[img_?ImageQ]:=
 
 
 PackageScope["opticalFourier"]
-opticalFourier[data_?ArrayQ]:=FourierShift@Fourier[data,FourierParameters->{0,1}]
+opticalFourier[data_?ArrayQ]:=FourierShift@Fourier[data,FourierParameters->{1,-1}]
 PackageScope["opticalInverseFourier"]
-opticalInverseFourier[data_?ArrayQ]:=InverseFourier[InverseFourierShift@data,FourierParameters->{0,1}]
+opticalInverseFourier[data_?ArrayQ]:=InverseFourier[InverseFourierShift@data,FourierParameters->{1,-1}]
