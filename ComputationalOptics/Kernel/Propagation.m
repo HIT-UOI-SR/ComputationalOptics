@@ -20,8 +20,8 @@ tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
       With[{ph=2Pi I d Sqrt[0.I+1/lambda^2-#1^2-#2^2]},
         If[Re[ph]>th,Exp[ph],0.]
       ]&,
-      Range[w]-w/2.,
-      Range[l]-l/2.
+      Range[w]/w-1/2.,
+      Range[l]/l-1/2.
     ]
   ]
 ]
