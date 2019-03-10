@@ -14,19 +14,19 @@ SetUsage[PropagationAS,
   "PropagationAS[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the angular spectrum."
 ]
 PropagationAS::invarg="Call `1` with the invalid argument."
-tfASarray:=Memoized@With[{th=Log[$MinMachineNumber]},
-  Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-    Outer[
-      With[{ph=2Pi I d Sqrt[0.I+1/lambda^2-#1^2-#2^2]},
-        If[Re[ph]>th,Exp[ph],0.]
-      ]&,
-      Range[w]/w-1/2.,
-      Range[l]/l-1/2.
-    ]
-  ]
+expth=Log[$MachineEpsilon];
+tfAS:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+  Outer[
+    With[{ph=2Pi I d Sqrt[0.I+1/lambda^2-#1^2-#2^2]},
+      If[Re[ph]>expth,Exp[ph],0.]
+    ]&,
+    Range[w]/w-1/2.,
+    Range[l]/l-1/2.
+  ],
+  CompilationOptions->{"InlineExternalDefinitions"->True}
 ]
 PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
-  opticalInverseFourier[opticalFourier[input]tfASarray[lambda,d,Sequence@@Dimensions[input]]]
+  opticalInverseFourier[opticalFourier[input]tfAS[lambda,d,Sequence@@Dimensions[input]]]
 call_PropagationAS:=(Message[PropagationAS::invarg,HoldForm@call];$Failed)
 
 
@@ -36,13 +36,12 @@ SetUsage[PropagationFresnel1,
 ]
 PropagationFresnel1::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel1::invarg="Call `1` with the invalid argument."
-fresnel1Q:=Memoized@
-  Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-    Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
-      Range[w]-w/2.,
-      Range[l]-l/2.
-    ]
+fresnel1Q:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+  Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
+    Range[w]-w/2.,
+    Range[l]-l/2.
   ]
+]
 checkFresnel1Cond[lambda_,d_,{w_,l_}]:=
   If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel1::cond,d]]
 PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
@@ -59,13 +58,12 @@ SetUsage[PropagationFresnel2,
 ]
 PropagationFresnel2::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel2::invarg="Call `1` with the invalid argument."
-tfFresnel2:=Memoized@
-  Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-    Outer[Exp[-Pi I d/lambda (#1^2+#2^2)]&,
-      Range[w]/w-1/2.,
-      Range[l]/l-1/2.
-    ]Exp[2Pi I d/lambda]
-  ]
+tfFresnel2:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+  Outer[Exp[-Pi I d/lambda (#1^2+#2^2)]&,
+    Range[w]/w-1/2.,
+    Range[l]/l-1/2.
+  ]Exp[2Pi I d/lambda]
+]
 checkFresnel2Cond[lambda_,d_,{w_,l_}]:=
   If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel2::cond,d]]
 PropagationFresnel2[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:= (
