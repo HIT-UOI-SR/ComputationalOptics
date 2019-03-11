@@ -8,6 +8,7 @@ PackageScope["objectOptionValue"]
 
 
 PackageExport["FourierShift"]
+SetAttributes[FourierShift,ReadProtected]
 SetUsage[FourierShift,
   "FourierShift[data$] shifts zero-frequency component to center of spectrum."
 ]
@@ -29,6 +30,7 @@ FourierShift[img_?ImageQ]:=
   ]
 
 PackageExport["InverseFourierShift"]
+SetAttributes[InverseFourierShift,ReadProtected]
 SetUsage[InverseFourierShift,
   "InverseFourierShift[data$] is inverse zero-frequency shift."
 ]

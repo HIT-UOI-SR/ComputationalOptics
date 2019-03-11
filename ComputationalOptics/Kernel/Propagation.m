@@ -10,6 +10,7 @@ PackageScope["realNumberQ"]
 
 
 PackageExport["PropagationAS"]
+SetAttributes[PropagationAS,ReadProtected]
 SetUsage[PropagationAS,
   "PropagationAS[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the angular spectrum."
 ]
@@ -31,6 +32,7 @@ call_PropagationAS:=(Message[PropagationAS::invarg,HoldForm@call];$Failed)
 
 
 PackageExport["PropagationFresnel1"]
+SetAttributes[PropagationFresnel1,ReadProtected]
 SetUsage[PropagationFresnel1,
   "PropagationFresnel1[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the Fresnel diffraction in the form of Fourier transform."
 ]
@@ -53,6 +55,7 @@ call_PropagationFresnel1:=(Message[PropagationFresnel1::invarg,HoldForm@call];$F
 
 
 PackageExport["PropagationFresnel2"]
+SetAttributes[PropagationFresnel2,ReadProtected]
 SetUsage[PropagationFresnel2,
   "PropagationFresnel2[input$, \[Lambda]$, d$] calculate propagation of the input$ field with the distance d$ and the wavelength \[Lambda]$ based on the Fresnel diffraction in the form of convolution."
 ]
