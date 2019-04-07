@@ -42,20 +42,47 @@ SetUsage[PropagationFresnel1,
 ]
 PropagationFresnel1::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel1::invarg="Call `1` with the invalid argument."
-fresnel1Q:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+fresnel1Q1:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
   Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
     Range[w]-w/2.,
     Range[l]-l/2.
   ]
 ]
+fresnel1Q2:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
+  Outer[Exp[I Pi d/lambda (#1^2+#2^2)]&,
+    Range[w]/w-1/2.,
+    Range[l]/l-1/2.
+  ]*Exp[2Pi I d/lambda]/(I lambda d)
+]
 checkFresnel1Cond[lambda_,d_,{w_,l_}]:=
   If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel1::cond,d]]
 PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
-  With[{q=fresnel1Q[lambda,d,Sequence@@Dimensions[input]]},
+  Scope[
     checkFresnel1Cond[lambda,d,Dimensions[input]];
-    opticalFourier[input*q]q*Exp[2Pi I d/lambda]/(I lambda d)
+    q1=fresnel1Q1[lambda,d,Sequence@@Dimensions[input]];
+    q2=fresnel1Q2[lambda,d,Sequence@@Dimensions[input]];
+    opticalFourier[input*q1]q2
   ]
 call_PropagationFresnel1:=(Message[PropagationFresnel1::invarg,HoldForm@call];$Failed)
+
+PackageExport["PropagationFresnel1X"]
+fresnel1QX:=Memoized@Compile[{{lambda,_Real},{d,_Real},{w,_Real},{l,_Real},{nw,_Integer},{nl,_Integer}},
+  Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
+    Array[#&,nw,{-w/2.,w/2.}],
+    Array[#&,nl,{-l/2.,l/2.}]
+  ]
+]
+PropagationFresnel1X[input_?MatrixQ,lambda_?Positive,d_?realNumberQ,sz_]:=PropagationFresnel1X[input,lambda,d,{sz,sz}]
+PropagationFresnel1X[input_?MatrixQ,lambda_?Positive,d_?realNumberQ,{w_,l_}]:=
+  Scope[
+    checkFresnel1Cond[lambda,d,Dimensions[input]];
+    {nw,nl}=Dimensions[input];
+    {dw,dl}={w,l}/{nw,nl};
+    q1=fresnel1QX[lambda,d,w,l,nw,nl];
+    {wo,lo}={nw,nl}*lambda*d/{w,l};
+    q2=fresnel1QX[lambda,d,wo,lo,nw,nl]*dw*dl*Exp[2Pi I d/lambda]/(I lambda d);
+    opticalFourier[input*q1]q2
+  ]
 
 
 PackageExport["PropagationFresnel2"]
