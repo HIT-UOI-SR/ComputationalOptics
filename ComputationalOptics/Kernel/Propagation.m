@@ -13,8 +13,7 @@ PackageExport["PropagationAS"]
 SetAttributes[PropagationAS,ReadProtected]
 SetUsage[PropagationAS,
   "PropagationAS[input$, wavelength$, distance$]\
-   calculates the propagation light field at the distance$ from the input surface with an input$ light field of wavelength$,\
-   based on the angular spectrum."
+  calculates the propagation light field based on the angular spectrum."
 ]
 PropagationAS::invarg="Call `1` with the invalid argument."
 tfAS:=Memoized@FunctionCompile@Function[
@@ -33,8 +32,7 @@ PackageExport["PropagationFresnel1"]
 SetAttributes[PropagationFresnel1,ReadProtected]
 SetUsage[PropagationFresnel1,
   "PropagationFresnel1[input$, wavelength$, distance$]\
-   calculates the propagation light field at the distance$ from the input surface with an input$ light field of wavelength$,\
-   based on the Fresnel diffraction in the form of Fourier transform."
+   calculates the propagation light field based on the Fresnel diffraction in the form of Fourier transform."
 ]
 PropagationFresnel1::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel1::invarg="Call `1` with the invalid argument."
@@ -89,8 +87,7 @@ PackageExport["PropagationFresnel2"]
 SetAttributes[PropagationFresnel2,ReadProtected]
 SetUsage[PropagationFresnel2,
   "PropagationFresnel2[input$, wavelength$, distance$]\
-  calculates the propagation light field at the distance$ from the input surface with an input$ light field of wavelength$,\
-  based on the Fresnel diffraction in the form of convolution."
+  calculates the propagation light field based on the Fresnel diffraction in the form of convolution."
 ]
 PropagationFresnel2::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel2::invarg="Call `1` with the invalid argument."
