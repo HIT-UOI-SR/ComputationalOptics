@@ -17,16 +17,12 @@ SetUsage[PropagationAS,
    based on the angular spectrum."
 ]
 PropagationAS::invarg="Call `1` with the invalid argument."
-expth=Log[$MachineEpsilon];
-tfAS:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-  Outer[
-    With[{ph=2Pi I d Sqrt[0.I+1/lambda^2-#1^2-#2^2]},
-      If[Re[ph]>expth,Exp[ph],0.]
-    ]&,
-    Range[w]/w-1/2.,
-    Range[l]/l-1/2.
-  ],
-  CompilationOptions->{"InlineExternalDefinitions"->True}
+tfAS:=Memoized@FunctionCompile@Function[
+  {Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"UnsignedMachineInteger"],Typed[l,"UnsignedMachineInteger"]},
+  Table[Exp[2Pi I d Sqrt@Compile`Cast[1/lambda^2-x^2-y^2,"ComplexReal64"]],
+    {x,1.0/w-1/2.,1/2.,1.0/w},
+    {y,1.0/l-1/2.,1/2.,1.0/l}
+  ]
 ]
 PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
   opticalInverseFourier[opticalFourier[input]tfAS[lambda,d,Sequence@@Dimensions[input]]]
@@ -42,17 +38,19 @@ SetUsage[PropagationFresnel1,
 ]
 PropagationFresnel1::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel1::invarg="Call `1` with the invalid argument."
-fresnel1Q1:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-  Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
-    Range[w]-w/2.,
-    Range[l]-l/2.
+fresnel1Q1:=Memoized@FunctionCompile@Function[
+  {Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"UnsignedMachineInteger"],Typed[l,"UnsignedMachineInteger"]},
+  Table[Exp[I Pi/(lambda d) (x^2+y^2)],
+    {x,1-w/2.,w/2.,1.},
+    {y,1-l/2.,l/2.,1.}
   ]
 ]
-fresnel1Q2:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-  Outer[Exp[I Pi d/lambda (#1^2+#2^2)]&,
-    Range[w]/w-1/2.,
-    Range[l]/l-1/2.
-  ]*Exp[2Pi I d/lambda]/(I lambda d)
+fresnel1Q2:=Memoized@FunctionCompile@Function[
+  {Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"UnsignedMachineInteger"],Typed[l,"UnsignedMachineInteger"]},
+  Table[Exp[I Pi d/lambda (x^2+y^2)]*Exp[2Pi I d/lambda]/(I lambda d),
+    {x,1.0/w-1/2.,1/2.,1.0/w},
+    {y,1.0/l-1/2.,1/2.,1.0/l}
+  ]
 ]
 checkFresnel1Cond[lambda_,d_,{w_,l_}]:=
   If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel1::cond,d]]
@@ -66,10 +64,12 @@ PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realNumberQ]:=
 call_PropagationFresnel1:=(Message[PropagationFresnel1::invarg,HoldForm@call];$Failed)
 
 PackageExport["PropagationFresnel1X"]
-fresnel1QX:=Memoized@Compile[{{lambda,_Real},{d,_Real},{w,_Real},{l,_Real},{nw,_Integer},{nl,_Integer}},
-  Outer[Exp[I Pi/(lambda d) (#1^2+#2^2)]&,
-    Array[#&,nw,{-w/2.,w/2.}],
-    Array[#&,nl,{-l/2.,l/2.}]
+fresnel1QX:=Memoized@FunctionCompile@Function[
+  {Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
+    Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
+  Table[Exp[I Pi/(lambda d) (x^2+y^2)],
+    {x,w/nw-w/2.,w/2.,w/nw},
+    {y,l/nl-l/2.,l/2.,l/nl}
   ]
 ]
 PropagationFresnel1X[input_?MatrixQ,lambda_?Positive,d_?realNumberQ,sz_]:=PropagationFresnel1X[input,lambda,d,{sz,sz}]
@@ -94,11 +94,12 @@ SetUsage[PropagationFresnel2,
 ]
 PropagationFresnel2::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 PropagationFresnel2::invarg="Call `1` with the invalid argument."
-tfFresnel2:=Memoized@Compile[{{lambda,_Real}, {d,_Real}, {w,_Integer}, {l,_Integer}},
-  Outer[Exp[-Pi I d/lambda (#1^2+#2^2)]&,
-    Range[w]/w-1/2.,
-    Range[l]/l-1/2.
-  ]Exp[2Pi I d/lambda]
+tfFresnel2:=Memoized@FunctionCompile@Function[
+  {Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"UnsignedMachineInteger"],Typed[l,"UnsignedMachineInteger"]},
+  Table[Exp[-Pi I d/lambda  (x^2+y^2)]*Exp[2Pi I d/lambda],
+    {x,1.0/w-1/2.,1/2.,1.0/w},
+    {y,1.0/l-1/2.,1/2.,1.0/l}
+  ]
 ]
 checkFresnel2Cond[lambda_,d_,{w_,l_}]:=
   If[d^3<5/(8lambda)*Sqrt[w^2+l^2],Message[PropagationFresnel2::cond,d]]
