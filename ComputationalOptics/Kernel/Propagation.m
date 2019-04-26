@@ -21,8 +21,8 @@ tfAS:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[2Pi I d Sqrt@Compile`Cast[1/lambda^2-x^2-y^2,"ComplexReal64"]],
-    {x,1.0/w-nw/(2w),nw/(2w),1.0/w},
-    {y,1.0/l-nl/(2l),nl/(2l),1.0/l}
+    {x,-nw/(2w),nw/(2w)-1.0/w,1.0/w},
+    {y,-nl/(2l),nl/(2l)-1.0/l,1.0/l}
   ]
 ]
 iPropagationAS[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=
@@ -63,8 +63,8 @@ fresnel1Q:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[I Pi/(lambda d) (x^2+y^2)],
-    {x,w/nw-w/2.,w/2.,w/nw},
-    {y,l/nl-l/2.,l/2.,l/nl}
+    {x,-w/2.,w/2.-w/nw,w/nw},
+    {y,-l/2.,l/2.-l/nl,l/nl}
   ]
 ]
 iPropagationFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=Scope[
@@ -97,8 +97,8 @@ tfFresnel2:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[-Pi I lambda d (x^2+y^2)]*Exp[2Pi I d/lambda],
-    {x,1.0/w-nw/(2w),nw/(2w),1.0/w},
-    {y,1.0/l-nl/(2l),nl/(2l),1.0/l}
+    {x,-nw/(2w),nw/(2w)-1.0/w,1.0/w},
+    {y,-nl/(2l),nl/(2l)-1.0/l,1.0/l}
   ]
 ]
 iPropagationFresnel2[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=
