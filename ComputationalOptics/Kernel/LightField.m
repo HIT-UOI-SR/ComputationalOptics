@@ -4,6 +4,9 @@ Package["ComputationalOptics`"]
 PackageImport["GeneralUtilities`"]
 
 
+PackageScope["maybeLengthQ"]
+
+
 PackageExport["LightField"]
 SetUsage[LightField,
   "LightField[type$, data$] represents an object containing the light field information.",
@@ -27,3 +30,13 @@ PackageExport["LightFieldQ"]
 SetUsage[LightFieldQ,
   "LightFieldQ[expr$] yields True if expr$ is a valid LightField object."
 ]
+HoldPattern@LightFieldQ[
+  LightField["PlaneWave",
+    KeyValuePattern[{
+      "Data"->_?MatrixQ,
+      "Wavelength"->_?maybeLengthQ,
+      "PhysicalSize"->{_?maybeLengthQ,_?maybeLengthQ}
+    }]
+  ]
+]=True
+LightFieldQ[_]=False

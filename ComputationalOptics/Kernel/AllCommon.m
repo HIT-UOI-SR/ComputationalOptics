@@ -17,3 +17,8 @@ nVal[nums_List/;!CompatibleUnitQ[nums]]:=ConstantArray[Indeterminate,Dimensions[
 
 PackageScope["realQ"]
 realQ[expr_]:=NonNegative[expr]||NonPositive[expr]
+
+PackageScope["maybeLengthQ"]
+maybeLengthQ[expr_?QuantityQ]:=CompatibleUnitQ[expr,"Meters"]
+maybeLengthQ[expr_?NumericQ]:=Im[expr]===0
+maybeLengthQ[_]=False
