@@ -72,6 +72,7 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
   ]
 ]
 (obj_LightField?LightFieldQ)["Type"]:=getType[obj]
+(obj_LightField?LightFieldQ)["Properties"]:=Keys@getProperty[obj,All]
 (obj_LightField?LightFieldQ)["IntensityPlot",opt:OptionsPattern[MatrixPlot]]:=intensityPlot[obj,opt]
 (obj_LightField?LightFieldQ)[prop_]:=getProperty[obj,prop]
 SetAttributes[mutationHandler,HoldAllComplete]
