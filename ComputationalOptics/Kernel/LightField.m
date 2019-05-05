@@ -33,8 +33,8 @@ LightField::setptvp="`1` is not a valid value for `2` in part assignment."
 $types=<|
   "PlaneWave"->{"Data","Wavelength","PhysicalSize"}
 |>
-LightField["Types"]=Keys[$types]
-LightField[type_String,"Properties"]:=With[
+HoldPattern@LightField["Types"]=Keys[$types]
+HoldPattern@LightField[type_String,"Properties"]:=With[
   {prop=$types[type]},
   If[MissingQ[prop],
     Message[LightField::notype,type];
@@ -44,18 +44,18 @@ LightField[type_String,"Properties"]:=With[
 ]
 SetAttributes[holdLightFieldQ,HoldAllComplete]
 holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
-HoldPattern[(obj_LightField?holdLightFieldQ)/;System`Private`HoldEntryQ[obj]]:=With[
+(obj_LightField?holdLightFieldQ)/;System`Private`HoldEntryQ[obj]:=With[
   {valid=System`Private`HoldSetNoEntry[obj]},
   valid
 ]
 
 
-HoldPattern@getType[LightField[type_,_]]:=type
-HoldPattern@getProperty[LightField[_,props_],All]:=props
-HoldPattern@getProperty[LightField[_,props_],prop_]:=props[prop]
+getType[HoldPattern@LightField[type_,_]]:=type
+getProperty[HoldPattern@LightField[_,props_],All]:=props
+getProperty[HoldPattern@LightField[_,props_],prop_]:=props[prop]
 SetAttributes[setProperty,HoldFirst]
 setProperty[sym_Symbol,All,val_]:=Block[
-  {tmp=Replace[sym,LightField[type_,props_]:>LightField[type,val]]},
+  {tmp=Replace[sym,HoldPattern@LightField[type_,props_]:>LightField[type,val]]},
   If[LightFieldQ[tmp],
     sym=tmp;val,
     Message[LightField::setptv,val];
@@ -67,7 +67,7 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
   tmpprops=getProperty[tmp,All];
   If[KeyExistsQ[tmpprops,prop],
     tmpprops[prop]=val;
-    tmp=Replace[tmp,LightField[type_,props_]:>LightField[type,tmpprops]];
+    tmp=Replace[tmp,HoldPattern@LightField[type_,props_]:>LightField[type,tmpprops]];
     If[LightFieldQ[tmp],
       sym=tmp;val,
       Message[LightField::setptvp,val,prop];
@@ -110,7 +110,7 @@ spectrumColor[wavelength_]:=With[
     GrayLevel
   ]
 ]
-HoldPattern@intensityPlot[obj:LightField["PlaneWave",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
+intensityPlot[obj:HoldPattern@LightField["PlaneWave",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
   {wx,wy}=nVal@obj["PhysicalSize"];
   lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
   MatrixPlot[
