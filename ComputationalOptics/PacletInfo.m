@@ -5,10 +5,16 @@ Paclet[
   WolframVersion->"12+",
   Creator->"miRoox <miRoox@outlook.com>",
   Description->"Computational optics toolkit.",
+  Loading->Automatic,
   Extensions->{
     {
       "Kernel",
-      "Context"->{"ComputationalOptics`"}
+      "Context"->{"ComputationalOptics`"},
+      "Symbols"->{
+        "ComputationalOptics`LightField",
+        "ComputationalOptics`FourierShift",
+        "ComputationalOptics`InverseFourierShift"
+      }
     }
   }
 ]
