@@ -4,6 +4,7 @@ Package["ComputationalOptics`"]
 PackageImport["GeneralUtilities`"]
 
 
+PackageScope["nVal"]
 PackageScope["maybeLengthQ"]
 
 
@@ -68,6 +69,7 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
   ]
 ]
 (obj_LightField?LightFieldQ)["Type"]:=getType[obj]
+(obj_LightField?LightFieldQ)["IntensityPlot",opt:OptionsPattern[MatrixPlot]]:=intensityPlot[obj,opt]
 (obj_LightField?LightFieldQ)[prop_]:=getProperty[obj,prop]
 SetAttributes[mutationHandler,HoldAllComplete]
 mutationHandler[Set[(sym_Symbol?LightFieldQ)[prop_],val_]]:=With[
@@ -89,5 +91,28 @@ HoldPattern@LightFieldQ[
 ]=True
 LightFieldQ[_]=False
 
+
+spectrumColor[wavelength_]:=With[
+  {base=ColorData["VisibleSpectrum"][wavelength]},
+  If[ColorDistance[Black, base]>0.5,
+    Darker[base,Clip[1-#,{0,1}]]&,
+    GrayLevel
+  ]
+]
+HoldPattern@intensityPlot[LightField["PlaneWave",props_],o:OptionsPattern[MatrixPlot]]:=Scope[
+  {wx,wy}=nVal@props["PhysicalSize"];
+  lambda=QuantityMagnitude[props["Wavelength"],"Nanometers"];
+  MatrixPlot[
+    Abs[props["Data"]]^2,
+    Normal@Merge[{
+      DataRange->{{-wx/2,wx/2},{-wy/2,wy/2}},
+      FrameTicks->{True,True},
+      ColorFunction->spectrumColor[lambda],
+      ColorFunctionScaling->True,
+      PlotLegends->Automatic,
+      o
+    },Last]
+  ]
+]
 
 Protect[LightField]
