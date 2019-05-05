@@ -42,8 +42,7 @@ HoldPattern@LightField[type_String,"Properties"]:=With[
     prop
   ]
 ]
-SetAttributes[holdLightFieldQ,HoldAllComplete]
-holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
+
 (obj_LightField?holdLightFieldQ)/;System`Private`HoldEntryQ[obj]:=With[
   {valid=System`Private`HoldSetNoEntry[obj]},
   valid
@@ -77,10 +76,12 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
     $Failed
   ]
 ]
+
 (obj_LightField?LightFieldQ)["Type"]:=getType[obj]
 (obj_LightField?LightFieldQ)["Properties"]:=Keys@getProperty[obj,All]
 (obj_LightField?LightFieldQ)["IntensityPlot",opt:OptionsPattern[MatrixPlot]]:=intensityPlot[obj,opt]
 (obj_LightField?LightFieldQ)[prop_]:=getProperty[obj,prop]
+
 SetAttributes[mutationHandler,HoldAllComplete]
 mutationHandler[Set[(sym_Symbol?LightFieldQ)[prop_],val_]]:=With[
   {result=setProperty[sym,prop,val]},
@@ -120,6 +121,9 @@ HoldPattern@LightFieldQ[
 LightFieldQ[_]=False
 LightFieldQ[expr_,type_]:=LightFieldQ[expr] && getType[expr]===type
 
+SetAttributes[holdLightFieldQ,HoldAllComplete]
+holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
+
 
 spectrumColor[wavelength_]:=With[
   {base=ColorData["VisibleSpectrum"][wavelength]},
@@ -143,5 +147,6 @@ intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneWave",_],opt:Options
     },Last]
   ]
 ]
+
 
 Protect[LightField]
