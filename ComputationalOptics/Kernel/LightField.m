@@ -31,7 +31,7 @@ LightField::setptvp="`1` is not a valid value for `2` in part assignment."
 
 
 $types=<|
-  "PlaneWave"->{"Data","Wavelength","PhysicalSize"}
+  "MonochromaticPlaneWave"->{"Data","Wavelength","PhysicalSize"}
 |>
 HoldPattern@LightField["Types"]=Keys[$types]
 HoldPattern@LightField[type_String,"Properties"]:=With[
@@ -90,7 +90,7 @@ mutationHandler[_]:=Language`MutationFallthrough
 Language`SetMutationHandler[LightField,mutationHandler]
 
 
-LightField/:MakeBoxes[obj:HoldPattern@LightField["PlaneWave",_],fmt_]/;BoxForm`UseIcons&&LightFieldQ[obj]:=ModuleScope[
+LightField/:MakeBoxes[obj:HoldPattern@LightField["MonochromaticPlaneWave",_],fmt_]/;BoxForm`UseIcons&&LightFieldQ[obj]:=ModuleScope[
   alwaysGrid={
     BoxForm`SummaryItem@{"Type: ",obj["Type"]},
     BoxForm`SummaryItem@{"Wavelength: ",obj["Wavelength"]}
@@ -109,7 +109,7 @@ LightField/:MakeBoxes[obj:HoldPattern@LightField["PlaneWave",_],fmt_]/;BoxForm`U
 
 
 HoldPattern@LightFieldQ[
-  LightField["PlaneWave",
+  LightField["MonochromaticPlaneWave",
     KeyValuePattern[{
       "Data"->_?MatrixQ,
       "Wavelength"->_?lengthQuatityQ,
@@ -128,7 +128,7 @@ spectrumColor[wavelength_]:=With[
     GrayLevel
   ]
 ]
-intensityPlot[obj:HoldPattern@LightField["PlaneWave",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
+intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneWave",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
   {wx,wy}=nVal@obj["PhysicalSize"];
   lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
   MatrixPlot[
