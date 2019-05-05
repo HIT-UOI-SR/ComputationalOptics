@@ -101,18 +101,18 @@ spectrumColor[wavelength_]:=With[
     GrayLevel
   ]
 ]
-HoldPattern@intensityPlot[LightField["PlaneWave",props_],o:OptionsPattern[MatrixPlot]]:=Scope[
-  {wx,wy}=nVal@props["PhysicalSize"];
-  lambda=QuantityMagnitude[props["Wavelength"],"Nanometers"];
+HoldPattern@intensityPlot[obj:LightField["PlaneWave",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
+  {wx,wy}=nVal@obj["PhysicalSize"];
+  lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
   MatrixPlot[
-    Abs[props["Data"]]^2,
+    Abs[obj["Data"]]^2,
     Normal@Merge[{
       DataRange->{{-wx/2,wx/2},{-wy/2,wy/2}},
       FrameTicks->{True,True},
       ColorFunction->spectrumColor[lambda],
       ColorFunctionScaling->True,
       PlotLegends->Automatic,
-      o
+      opt
     },Last]
   ]
 ]
