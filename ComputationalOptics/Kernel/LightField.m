@@ -74,6 +74,7 @@ mutationHandler[Set[(sym_Symbol?LightFieldQ)[prop_],val_]]:=With[
   {result=setData[sym,prop,val]},
   result/;!FailureQ[result]
 ]
+mutationHandler[_]:=Language`MutationFallthrough
 Language`SetMutationHandler[LightField,mutationHandler]
 
 
