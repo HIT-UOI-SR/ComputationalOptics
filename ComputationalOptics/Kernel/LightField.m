@@ -19,10 +19,10 @@ SetUsage[LightFieldQ,
 ]
 
 
-LightField::notype="`1` is not available type."
-LightField::setptv="`1` is not valid data in part assignment."
-LightField::setptp="`1` is not valid property in part assignment."
-LightField::setptvp="`1` is not valid value for `2` in part assignment."
+LightField::notype="`1` is not an available type."
+LightField::setptv="`1` is not a valid data in part assignment."
+LightField::setptp="`1` is not a valid property in part assignment."
+LightField::setptvp="`1` is not a valid value for `2` in part assignment."
 
 
 $types=<|
