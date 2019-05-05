@@ -44,12 +44,12 @@ LightField[type_String,"Properties"]:=With[
 ]
 
 
-getType[obj_LightField]:=obj[[1]]
-getProperty[obj_LightField,All]:=obj[[2]]
-getProperty[obj_LightField,prop_]:=obj[[2,Key[prop]]]
+HoldPattern@getType[LightField[type_,_]]:=type
+HoldPattern@getProperty[LightField[_,props_],All]:=props
+HoldPattern@getProperty[LightField[_,props_],prop_]:=props[prop]
 SetAttributes[setProperty,HoldFirst]
 setProperty[sym_Symbol,All,val_]:=Block[
-  {tmp=ReplacePart[sym,2->val]},
+  {tmp=Replace[sym,LightField[type_,props_]:>LightField[type,val]]},
   If[LightFieldQ[tmp],
     sym=tmp;val,
     Message[LightField::setptv,val];
@@ -57,9 +57,11 @@ setProperty[sym_Symbol,All,val_]:=Block[
   ]
 ]
 setProperty[sym_Symbol,prop_,val_]:=Block[
-  {tmp=sym},
-  If[KeyExistsQ[tmp[[2]],prop],
-    tmp=ReplacePart[tmp,{2,Key[prop]}->val];
+  {tmp=sym,tmpprops},
+  tmpprops=getProperty[tmp,All];
+  If[KeyExistsQ[tmpprops,prop],
+    tmpprops[prop]=val;
+    tmp=Replace[sym,LightField[type_,props_]:>LightField[type,tmpprops]];
     If[LightFieldQ[tmp],
       sym=tmp;val,
       Message[LightField::setptvp,val,prop];
