@@ -42,6 +42,12 @@ LightField[type_String,"Properties"]:=With[
     prop
   ]
 ]
+SetAttributes[holdLightFieldQ,HoldAllComplete]
+holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
+HoldPattern[(obj_LightField?holdLightFieldQ)/;System`Private`HoldEntryQ[obj]]:=With[
+  {valid=System`Private`HoldSetNoEntry[obj]},
+  valid
+]
 
 
 HoldPattern@getType[LightField[type_,_]]:=type
