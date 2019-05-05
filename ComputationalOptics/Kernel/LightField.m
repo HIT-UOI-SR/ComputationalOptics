@@ -19,7 +19,8 @@ SetUsage[LightField,
 PackageExport["LightFieldQ"]
 SetAttributes[LightFieldQ,ReadProtected]
 SetUsage[LightFieldQ,
-  "LightFieldQ[expr$] yields True if expr$ is a valid LightField object."
+  "LightFieldQ[expr$] yields True if expr$ is a valid LightField object.",
+  "LightFieldQ[expr$, type$] yields True if expr$ is a valid LightField object of type$."
 ]
 
 
@@ -90,6 +91,7 @@ HoldPattern@LightFieldQ[
   ]
 ]=True
 LightFieldQ[_]=False
+LightFieldQ[expr_,type_]:=LightFieldQ[expr] && getType[expr]===type
 
 
 spectrumColor[wavelength_]:=With[
