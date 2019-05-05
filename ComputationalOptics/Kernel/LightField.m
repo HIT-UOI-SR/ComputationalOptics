@@ -5,7 +5,7 @@ PackageImport["GeneralUtilities`"]
 
 
 PackageScope["nVal"]
-PackageScope["maybeLengthQ"]
+PackageScope["lengthQuatityQ"]
 
 
 PackageExport["LightField"]
@@ -88,8 +88,8 @@ HoldPattern@LightFieldQ[
   LightField["PlaneWave",
     KeyValuePattern[{
       "Data"->_?MatrixQ,
-      "Wavelength"->_?maybeLengthQ,
-      "PhysicalSize"->{_?maybeLengthQ,_?maybeLengthQ}
+      "Wavelength"->_?lengthQuatityQ,
+      "PhysicalSize"->{_?lengthQuatityQ,_?lengthQuatityQ}
     }]
   ]
 ]=True
