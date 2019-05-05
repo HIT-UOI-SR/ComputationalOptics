@@ -90,6 +90,24 @@ mutationHandler[_]:=Language`MutationFallthrough
 Language`SetMutationHandler[LightField,mutationHandler]
 
 
+LightField/:MakeBoxes[obj:HoldPattern@LightField["PlaneWave",_],fmt_]/;BoxForm`UseIcons&&LightFieldQ[obj]:=ModuleScope[
+  alwaysGrid={
+    BoxForm`SummaryItem@{"Type: ",obj["Type"]},
+    BoxForm`SummaryItem@{"Wavelength: ",obj["Wavelength"]}
+  };
+  sometimesGrid={
+    BoxForm`SummaryItem@{"PhysicalSize: ",obj["PhysicalSize"]},
+    BoxForm`SummaryItem@{"DataSize: ",Dimensions[obj["Data"]]}
+  };
+  icon=obj["IntensityPlot",
+    MaxPlotPoints->32,PlotTheme->"Basic",
+    Frame->False,PlotLegends->None,
+    ElisionsDump`commonGraphicsOptions
+  ];
+  BoxForm`ArrangeSummaryBox[LightField,obj,icon,alwaysGrid,sometimesGrid,fmt]
+]
+
+
 HoldPattern@LightFieldQ[
   LightField["PlaneWave",
     KeyValuePattern[{
