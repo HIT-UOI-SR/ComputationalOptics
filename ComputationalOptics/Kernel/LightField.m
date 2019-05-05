@@ -8,12 +8,15 @@ PackageScope["maybeLengthQ"]
 
 
 PackageExport["LightField"]
+Unprotect[LightField]
+SetAttributes[LightField,ReadProtected]
 SetUsage[LightField,
   "LightField[type$, data$] represents an object containing the light field information.",
   "LightField['Types'] gives a list of the vaild light field types.",
   "LightField[type$, 'Properties'] gives a list of the valid properties for the type$."
 ]
 PackageExport["LightFieldQ"]
+SetAttributes[LightFieldQ,ReadProtected]
 SetUsage[LightFieldQ,
   "LightFieldQ[expr$] yields True if expr$ is a valid LightField object."
 ]
@@ -84,3 +87,6 @@ HoldPattern@LightFieldQ[
   ]
 ]=True
 LightFieldQ[_]=False
+
+
+Protect[LightField]
