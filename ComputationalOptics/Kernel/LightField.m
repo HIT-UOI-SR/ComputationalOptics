@@ -61,7 +61,7 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
   tmpprops=getProperty[tmp,All];
   If[KeyExistsQ[tmpprops,prop],
     tmpprops[prop]=val;
-    tmp=Replace[sym,LightField[type_,props_]:>LightField[type,tmpprops]];
+    tmp=Replace[tmp,LightField[type_,props_]:>LightField[type,tmpprops]];
     If[LightFieldQ[tmp],
       sym=tmp;val,
       Message[LightField::setptvp,val,prop];
