@@ -11,7 +11,7 @@ PackageExport["LightField"]
 Unprotect[LightField]
 SetAttributes[LightField,ReadProtected]
 SetUsage[LightField,
-  "LightField[type$, data$] represents an object containing the light field information.",
+  "LightField[type$, prop$] represents an object containing the light field information.",
   "LightField['Types'] gives a list of the vaild light field types.",
   "LightField[type$, 'Properties'] gives a list of the valid properties for the type$."
 ]
@@ -43,10 +43,10 @@ LightField[type_String,"Properties"]:=With[
 
 
 getType[obj_LightField]:=obj[[1]]
-getData[obj_LightField,All]:=obj[[2]]
-getData[obj_LightField,prop_]:=obj[[2,Key[prop]]]
-SetAttributes[setData,HoldFirst]
-setData[sym_Symbol,All,val_]:=Block[
+getProperty[obj_LightField,All]:=obj[[2]]
+getProperty[obj_LightField,prop_]:=obj[[2,Key[prop]]]
+SetAttributes[setProperty,HoldFirst]
+setProperty[sym_Symbol,All,val_]:=Block[
   {tmp=ReplacePart[sym,2->val]},
   If[LightFieldQ[tmp],
     sym=tmp;val,
@@ -54,7 +54,7 @@ setData[sym_Symbol,All,val_]:=Block[
     $Failed
   ]
 ]
-setData[sym_Symbol,prop_,val_]:=Block[
+setProperty[sym_Symbol,prop_,val_]:=Block[
   {tmp=sym},
   If[KeyExistsQ[tmp[[2]],prop],
     tmp=ReplacePart[tmp,{2,Key[prop]}->val];
@@ -68,10 +68,10 @@ setData[sym_Symbol,prop_,val_]:=Block[
   ]
 ]
 (obj_LightField?LightFieldQ)["Type"]:=getType[obj]
-(obj_LightField?LightFieldQ)[prop_]:=getData[obj,prop]
+(obj_LightField?LightFieldQ)[prop_]:=getProperty[obj,prop]
 SetAttributes[mutationHandler,HoldAllComplete]
 mutationHandler[Set[(sym_Symbol?LightFieldQ)[prop_],val_]]:=With[
-  {result=setData[sym,prop,val]},
+  {result=setProperty[sym,prop,val]},
   result/;!FailureQ[result]
 ]
 mutationHandler[_]:=Language`MutationFallthrough
