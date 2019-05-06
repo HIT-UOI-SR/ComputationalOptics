@@ -31,9 +31,11 @@ SetUsage[LightFieldConvert,
 
 
 LightField::notype="`1` is not an available type."
+LightField::ptprop="`1` is not a valid property."
 LightField::setptv="`1` is not a valid data in part assignment."
 LightField::setptp="`1` is not a valid property in part assignment."
 LightField::setptvp="`1` is not a valid value for `2` in part assignment."
+LightField::intplot="Cannot plot the intensity of light field with the type `1`."
 
 
 $types=<|
@@ -57,7 +59,10 @@ HoldPattern@LightField[type_String,"Properties"]:=With[
 
 getType[HoldPattern@LightField[type_,_]]:=type
 getProperty[HoldPattern@LightField[_,props_],All]:=props
-getProperty[HoldPattern@LightField[_,props_],prop_]:=props[prop]
+getProperty[HoldPattern@LightField[_,props_],prop_]:=Lookup[
+  props,prop,
+  Message[LightField::ptprop,prop];Missing["NotAvailable",prop]
+]
 SetAttributes[setProperty,HoldFirst]
 setProperty[sym_Symbol,All,val_]:=Block[
   {tmp=Replace[sym,HoldPattern@LightField[type_,props_]:>LightField[type,val]]},
@@ -160,6 +165,7 @@ intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],opt:Opti
     },Last]
   ]
 ]
+intensityPlot[obj_LightField,___]:=(Message[LightField::intplot,getType@obj];$Failed)
 
 
 Protect[LightField]
