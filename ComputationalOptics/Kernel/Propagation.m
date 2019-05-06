@@ -10,13 +10,35 @@ PackageScope["realQ"]
 PackageScope["nVal"]
 
 
+PackageExport["Propagation"]
+SetAttributes[Propagation,ReadProtected]
+SetUsage[Propagation,
+  "Propagation[input$, distance$] calculates the propagation of the input$ light field with the distance$."
+]
 PackageExport["PropagationAS"]
 SetAttributes[PropagationAS,ReadProtected]
 SetUsage[PropagationAS,
   "PropagationAS[input$, wavelength$, distance$, size$]\
-  calculates the propagation light field based on the angular spectrum."
+  is a low-level method to calculate the propagation light field based on the angular spectrum."
 ]
-PropagationAS::invarg="Call `1` with the invalid argument."
+PackageExport["PropagationFresnel2"]
+SetAttributes[PropagationFresnel2,ReadProtected]
+SetUsage[PropagationFresnel2,
+  "PropagationFresnel2[input$, wavelength$, distance$, size$]\
+  is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of convolution."
+]
+PackageExport["PropagationFresnel1"]
+SetAttributes[PropagationFresnel1,ReadProtected]
+SetUsage[PropagationFresnel1,
+  "PropagationFresnel1[input$, wavelength$, distance$, size$]\
+   is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of Fourier transform."
+]
+
+
+Propagation::invarg="Call `1` with the invalid argument."
+Propagation::frescond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
+
+
 tfAS:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
@@ -35,30 +57,18 @@ PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realQ,sz_?Positive]:=
   iPropagationAS[input,nVal@{lambda,d,sz,sz},Dimensions[input]]
 PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realQ,{w_?Positive,l_?Positive}]:=
   iPropagationAS[input,nVal@{lambda,d,w,l},Dimensions[input]]
-call_PropagationAS:=(Message[PropagationAS::invarg,HoldForm@call];$Failed)
+call_PropagationAS:=(Message[Propagation::invarg,HoldForm@call];$Failed)
 
 
-PackageExport["PropagationFresnel"]
-SetUsage[PropagationFresnel,
-  "PropagationFresnel is a symbol to which the general messages about Fresnel diffraction are attached. "
-]
-PropagationFresnel::cond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
 $FresnelCondChecked
 checkFresnelCond[lambda_,d_,w_,l_]/;$FresnelCondChecked:=True
 checkFresnelCond[lambda_,d_,w_,l_]:=Scope[
   If[d^3<1/(16lambda)*(w^2+l^2)^2,
-    Message[PropagationFresnel::cond,d]
+    Message[Propagation::frescond,d]
   ];
   True
 ]
 
-PackageExport["PropagationFresnel1"]
-SetAttributes[PropagationFresnel1,ReadProtected]
-SetUsage[PropagationFresnel1,
-  "PropagationFresnel1[input$, wavelength$, distance$, size$]\
-   calculates the propagation light field based on the Fresnel diffraction in the form of Fourier transform."
-]
-PropagationFresnel1::invarg="Call `1` with the invalid argument."
 fresnel1Q:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
@@ -83,16 +93,9 @@ PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realQ,sz_?Positive]/;chec
   iPropagationFresnel1[input,nVal@{lambda,d,sz,sz},Dimensions[input]]
 PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realQ,{w_?Positive,l_?Positive}]/;checkFresnelCond[lambda,d,w,l]:=
   iPropagationFresnel1[input,nVal@{lambda,d,w,l},Dimensions[input]]
-call_PropagationFresnel1:=(Message[PropagationFresnel1::invarg,HoldForm@call];$Failed)
+call_PropagationFresnel1:=(Message[Propagation::invarg,HoldForm@call];$Failed)
 
 
-PackageExport["PropagationFresnel2"]
-SetAttributes[PropagationFresnel2,ReadProtected]
-SetUsage[PropagationFresnel2,
-  "PropagationFresnel2[input$, wavelength$, distance$, size$]\
-  calculates the propagation light field based on the Fresnel diffraction in the form of convolution."
-]
-PropagationFresnel2::invarg="Call `1` with the invalid argument."
 tfFresnel2:=Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
@@ -112,4 +115,4 @@ PropagationFresnel2[input_?MatrixQ,lambda_?Positive,d_?realQ,sz_?Positive]/;chec
   iPropagationFresnel2[input,nVal@{lambda,d,sz,sz},Dimensions[input]]
 PropagationFresnel2[input_?MatrixQ,lambda_?Positive,d_?realQ,{w_?Positive,l_?Positive}]/;checkFresnelCond[lambda,d,w,l]:=
   iPropagationFresnel2[input,nVal@{lambda,d,w,l},Dimensions[input]]
-call_PropagationFresnel2:=(Message[PropagationFresnel2::invarg,HoldForm@call];$Failed)
+call_PropagationFresnel2:=(Message[Propagation::invarg,HoldForm@call];$Failed)
