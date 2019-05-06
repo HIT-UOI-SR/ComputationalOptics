@@ -22,6 +22,12 @@ SetUsage[LightFieldQ,
   "LightFieldQ[expr$] yields True if expr$ is a valid LightField object.",
   "LightFieldQ[expr$, type$] yields True if expr$ is a valid LightField object of type$."
 ]
+PackageExport["LightFieldConvert"]
+SetAttributes[LightFieldConvert,ReadProtected]
+SetUsage[LightFieldConvert,
+  "LightFieldConvert[field$, type$] convert light field$ to type$.",
+  "LightFieldConvert[field$, type$, info$] convert light field$ to type$ with additional info$."
+]
 
 
 LightField::notype="`1` is not an available type."
@@ -123,6 +129,10 @@ LightFieldQ[expr_,type_]:=LightFieldQ[expr] && getType[expr]===type
 
 SetAttributes[holdLightFieldQ,HoldAllComplete]
 holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
+
+
+LightFieldConvert[obj_,_]:=obj(*empty implementation*)
+LightFieldConvert[obj_,_,_]:=obj
 
 
 spectrumColor[wavelength_]:=With[
