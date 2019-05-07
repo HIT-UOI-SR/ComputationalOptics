@@ -19,5 +19,5 @@ PackageScope["realQ"]
 realQ[expr_]:=NonNegative[expr]||NonPositive[expr]
 
 PackageScope["lengthQuatityQ"]
-lengthQuatityQ[expr_?QuantityQ]:=CompatibleUnitQ[expr,"Meters"]
+lengthQuatityQ[expr_?QuantityQ]:=CompatibleUnitQ[expr,"Meters"]&&realQ[expr]
 lengthQuatityQ[_]=False
