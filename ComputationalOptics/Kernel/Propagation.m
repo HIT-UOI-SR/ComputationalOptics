@@ -4,9 +4,14 @@ Package["ComputationalOptics`"]
 PackageImport["GeneralUtilities`"]
 
 
+PackageExport["LightField"]
+PackageExport["LightFieldQ"]
+
+
 PackageScope["opticalFourier"]
 PackageScope["opticalInverseFourier"]
 PackageScope["realQ"]
+PackageScope["lengthQuatityQ"]
 PackageScope["nVal"]
 
 
@@ -37,6 +42,54 @@ SetUsage[PropagationFresnel1,
 
 Propagation::invarg="Call `1` with the invalid argument."
 Propagation::frescond="Warning: The distance `1` may be too small to satisfy the Fresnel approximation."
+
+
+Options[Propagation]={
+  Method->Automatic
+}
+
+
+$lastMethod=Automatic
+resolvePropagtionMethod["AngularSpectrum",_]:=Scope[
+  $lastMethod^="AngularSpectrum";
+  PropagationAS
+]
+resolvePropagtionMethod["Fresnel",_]:=Scope[
+  $lastMethod^="Fresnel";
+  PropagationFresnel2
+]
+resolvePropagtionMethod["FresnelFourier",_]:=Scope[
+  $lastMethod^="FresnelFourier";
+  PropagationFresnel1
+]
+resolvePropagtionMethod[Inherited,type_]:=resolvePropagtionMethod[$lastMethod,type]
+resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=Scope[
+  $lastMethod^="AngularSpectrum";
+  PropagationAS
+]
+
+$outputPhysicalSize=.
+iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=Scope[
+  output=input;
+  $outputPhysicalSize=input@"PhysicalSize";
+  data=method[input@"Data",input@"Wavelength",d,input@"PhysicalSize"];
+  If[FailureQ@data,
+    Throw[$Failed,Propagation]
+  ];
+  output@"Data"=data;
+  ouput@"PhysicalSize"=$outputPhysicalSize;
+  output
+]
+
+
+Propagation[input_?LightFieldQ,d_?lengthQuatityQ,opt:OptionsPattern[]]:=Catch[
+  iPropagation[
+    resolvePropagtionMethod[OptionValue[Method,input@"Type"]],
+    d,
+    input
+  ],
+  Propagation
+]
 
 
 tfAS:=Memoized@FunctionCompile@Function[{
@@ -80,7 +133,7 @@ fresnel1Q:=Memoized@FunctionCompile@Function[{
 iPropagationFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=Scope[
   q1=fresnel1Q[lambda,d,w,l,nw,nl];
   {dw,dl}={w,l}/{nw,nl};
-  {w2,l2}=lambda d/{dw,dl};
+  $outputPhysicalSize^={w2,l2}=lambda d/{dw,dl};
   q2=fresnel1Q[lambda,d,w2,l2,nw,nl]Exp[2Pi I d/lambda]/(I lambda d);
   opticalFourier[input*q1]*dw*dl*q2
 ]
