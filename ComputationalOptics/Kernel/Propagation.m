@@ -77,7 +77,7 @@ iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=Sco
     Throw[$Failed,Propagation]
   ];
   output@"Data"=data;
-  ouput@"PhysicalSize"=$outputPhysicalSize;
+  output@"PhysicalSize"=$outputPhysicalSize;
   output
 ]
 
