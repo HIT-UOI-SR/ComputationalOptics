@@ -11,20 +11,20 @@ PackageScope["lengthQuatityQ"]
 PackageExport["LightField"]
 Unprotect[LightField]
 SetAttributes[LightField,ReadProtected]
-SetUsage[LightField,
+GeneralUtilities`SetUsage[LightField,
   "LightField[type$, prop$] represents an object containing the light field information.",
   "LightField['Types'] gives a list of the vaild light field types.",
   "LightField[type$, 'Properties'] gives a list of the valid properties for the type$."
 ]
 PackageExport["LightFieldQ"]
 SetAttributes[LightFieldQ,ReadProtected]
-SetUsage[LightFieldQ,
+GeneralUtilities`SetUsage[LightFieldQ,
   "LightFieldQ[expr$] yields True if expr$ is a valid LightField object.",
   "LightFieldQ[expr$, type$] yields True if expr$ is a valid LightField object of type$."
 ]
 PackageExport["LightFieldConvert"]
 SetAttributes[LightFieldConvert,ReadProtected]
-SetUsage[LightFieldConvert,
+GeneralUtilities`SetUsage[LightFieldConvert,
   "LightFieldConvert[field$, type$] convert light field$ to type$.",
   "LightFieldConvert[field$, type$, info$] convert light field$ to type$ with additional info$."
 ]
@@ -150,21 +150,22 @@ spectrumColor[wavelength_]:=With[
     GrayLevel
   ]
 ]
-intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],opt:OptionsPattern[MatrixPlot]]:=Scope[
-  {wx,wy}=nVal@obj["PhysicalSize"];
-  lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
-  MatrixPlot[
-    Abs[obj["Data"]]^2,
-    Normal@Merge[{
-      DataRange->{{-wx/2,wx/2},{-wy/2,wy/2}},
-      FrameTicks->{True,True},
-      ColorFunction->spectrumColor[lambda],
-      ColorFunctionScaling->True,
-      PlotLegends->Automatic,
-      opt
-    },Last]
+intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],opt:OptionsPattern[MatrixPlot]]:=
+  GeneralUtilities`Scope[
+    {wx,wy}=nVal@obj["PhysicalSize"];
+    lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
+    MatrixPlot[
+      Abs[obj["Data"]]^2,
+      Normal@Merge[{
+        DataRange->{{-wx/2,wx/2},{-wy/2,wy/2}},
+        FrameTicks->{True,True},
+        ColorFunction->spectrumColor[lambda],
+        ColorFunctionScaling->True,
+        PlotLegends->Automatic,
+        opt
+      },Last]
+    ]
   ]
-]
 intensityPlot[obj_LightField,___]:=(Message[LightField::intplot,getType@obj];$Failed)
 
 

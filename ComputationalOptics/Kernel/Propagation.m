@@ -17,24 +17,24 @@ PackageScope["nVal"]
 
 PackageExport["Propagation"]
 SetAttributes[Propagation,ReadProtected]
-SetUsage[Propagation,
+GeneralUtilities`SetUsage[Propagation,
   "Propagation[input$, distance$] calculates the propagation of the input$ light field with the distance$."
 ]
 PackageExport["PropagationAS"]
 SetAttributes[PropagationAS,ReadProtected]
-SetUsage[PropagationAS,
+GeneralUtilities`SetUsage[PropagationAS,
   "PropagationAS[input$, wavelength$, distance$, size$]\
   is a low-level method to calculate the propagation light field based on the angular spectrum."
 ]
 PackageExport["PropagationFresnel2"]
 SetAttributes[PropagationFresnel2,ReadProtected]
-SetUsage[PropagationFresnel2,
+GeneralUtilities`SetUsage[PropagationFresnel2,
   "PropagationFresnel2[input$, wavelength$, distance$, size$]\
   is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of convolution."
 ]
 PackageExport["PropagationFresnel1"]
 SetAttributes[PropagationFresnel1,ReadProtected]
-SetUsage[PropagationFresnel1,
+GeneralUtilities`SetUsage[PropagationFresnel1,
   "PropagationFresnel1[input$, wavelength$, distance$, size$]\
    is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of Fourier transform."
 ]
@@ -50,26 +50,26 @@ Options[Propagation]={
 
 
 $lastMethod=Automatic
-resolvePropagtionMethod["AngularSpectrum",_]:=Scope[
+resolvePropagtionMethod["AngularSpectrum",_]:=GeneralUtilities`Scope[
   $lastMethod^="AngularSpectrum";
   PropagationAS
 ]
-resolvePropagtionMethod["Fresnel",_]:=Scope[
+resolvePropagtionMethod["Fresnel",_]:=GeneralUtilities`Scope[
   $lastMethod^="Fresnel";
   PropagationFresnel2
 ]
-resolvePropagtionMethod["FresnelFourier",_]:=Scope[
+resolvePropagtionMethod["FresnelFourier",_]:=GeneralUtilities`Scope[
   $lastMethod^="FresnelFourier";
   PropagationFresnel1
 ]
 resolvePropagtionMethod[Inherited,type_]:=resolvePropagtionMethod[$lastMethod,type]
-resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=Scope[
+resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=GeneralUtilities`Scope[
   $lastMethod^="AngularSpectrum";
   PropagationAS
 ]
 
 $outputPhysicalSize=.
-iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=Scope[
+iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=GeneralUtilities`Scope[
   output=input;
   $outputPhysicalSize=input@"PhysicalSize";
   data=method[input@"Data",input@"Wavelength",d,input@"PhysicalSize"];
@@ -92,7 +92,7 @@ Propagation[input_?LightFieldQ,d_?lengthQuatityQ,opt:OptionsPattern[]]:=Catch[
 ]
 
 
-tfAS:=Memoized@FunctionCompile@Function[{
+tfAS:=GeneralUtilities`Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[2Pi I d Sqrt@Compile`Cast[1/lambda^2-x^2-y^2,"ComplexReal64"]],
@@ -102,7 +102,7 @@ tfAS:=Memoized@FunctionCompile@Function[{
 ]
 iPropagationAS[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=
   opticalInverseFourier[opticalFourier[input]tfAS[lambda,d,w,l,nw,nl]]
-PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realQ]:=Scope[
+PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realQ]:=GeneralUtilities`Scope[
   {w,l}=Dimensions[input];
   iPropagationAS[input,nVal@{lambda,d,w,l},{w,l}]
 ]
@@ -113,16 +113,16 @@ PropagationAS[input_?MatrixQ,lambda_?Positive,d_?realQ,{w_?Positive,l_?Positive}
 call_PropagationAS:=(Message[Propagation::invarg,HoldForm@call];$Failed)
 
 
-$FresnelCondChecked
+$FresnelCondChecked=False
 checkFresnelCond[lambda_,d_,w_,l_]/;$FresnelCondChecked:=True
-checkFresnelCond[lambda_,d_,w_,l_]:=Scope[
+checkFresnelCond[lambda_,d_,w_,l_]:=GeneralUtilities`Scope[
   If[d^3<1/(16lambda)*(w^2+l^2)^2,
     Message[Propagation::frescond,d]
   ];
   True
 ]
 
-fresnel1Q:=Memoized@FunctionCompile@Function[{
+fresnel1Q:=GeneralUtilities`Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[I Pi/(lambda d) (x^2+y^2)],
@@ -130,7 +130,7 @@ fresnel1Q:=Memoized@FunctionCompile@Function[{
     {y,-l/2.,l/2.-l/nl,l/nl}
   ]
 ]
-iPropagationFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=Scope[
+iPropagationFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=GeneralUtilities`Scope[
   q1=fresnel1Q[lambda,d,w,l,nw,nl];
   {dw,dl}={w,l}/{nw,nl};
   $outputPhysicalSize^={w2,l2}=lambda d/{dw,dl};
@@ -149,7 +149,7 @@ PropagationFresnel1[input_?MatrixQ,lambda_?Positive,d_?realQ,{w_?Positive,l_?Pos
 call_PropagationFresnel1:=(Message[Propagation::invarg,HoldForm@call];$Failed)
 
 
-tfFresnel2:=Memoized@FunctionCompile@Function[{
+tfFresnel2:=GeneralUtilities`Memoized@FunctionCompile@Function[{
     Typed[lambda,"Real64"],Typed[d,"Real64"],Typed[w,"Real64"],Typed[l,"Real64"],
     Typed[nw,"UnsignedMachineInteger"],Typed[nl,"UnsignedMachineInteger"]},
   Table[Exp[-Pi I lambda d (x^2+y^2)]*Exp[2Pi I d/lambda],

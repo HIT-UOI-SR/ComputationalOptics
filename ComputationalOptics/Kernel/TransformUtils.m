@@ -9,7 +9,7 @@ PackageScope["objectOptionValue"]
 
 PackageExport["FourierShift"]
 SetAttributes[FourierShift,ReadProtected]
-SetUsage[FourierShift,
+GeneralUtilities`SetUsage[FourierShift,
   "FourierShift[data$] shifts zero-frequency component to center of spectrum."
 ]
 FourierShift[data_?ArrayQ]:=RotateLeft[data,Ceiling[Dimensions[data]/2]]
@@ -31,7 +31,7 @@ FourierShift[img_?ImageQ]:=
 
 PackageExport["InverseFourierShift"]
 SetAttributes[InverseFourierShift,ReadProtected]
-SetUsage[InverseFourierShift,
+GeneralUtilities`SetUsage[InverseFourierShift,
   "InverseFourierShift[data$] is inverse zero-frequency shift."
 ]
 InverseFourierShift[data_?ArrayQ]:=RotateRight[data,Ceiling[Dimensions[data]/2]]
