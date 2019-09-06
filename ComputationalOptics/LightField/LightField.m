@@ -1,14 +1,13 @@
 Package["ComputationalOptics`"]
 
+PackageExport["LightField"]
 
 PackageImport["GeneralUtilities`"]
-
-
+PackageExport["LightFieldQ"]
+PackageScope["holdLightFieldQ"]
 PackageScope["nVal"]
 PackageScope["lengthQuatityQ"]
 
-
-PackageExport["LightField"]
 Unprotect[LightField]
 SetAttributes[LightField,ReadProtected]
 GeneralUtilities`SetUsage[LightField,
@@ -16,19 +15,6 @@ GeneralUtilities`SetUsage[LightField,
   "LightField['Types'] gives a list of the vaild light field types.",
   "LightField[type$, 'Properties'] gives a list of the valid properties for the type$."
 ]
-PackageExport["LightFieldQ"]
-SetAttributes[LightFieldQ,ReadProtected]
-GeneralUtilities`SetUsage[LightFieldQ,
-  "LightFieldQ[expr$] yields True if expr$ is a valid LightField object.",
-  "LightFieldQ[expr$, type$] yields True if expr$ is a valid LightField object of type$."
-]
-PackageExport["LightFieldConvert"]
-SetAttributes[LightFieldConvert,ReadProtected]
-GeneralUtilities`SetUsage[LightFieldConvert,
-  "LightFieldConvert[field$, type$] convert light field$ to type$.",
-  "LightFieldConvert[field$, type$, info$] convert light field$ to type$ with additional info$."
-]
-
 
 LightField::notype="`1` is not an available type."
 LightField::ptprop="`1` is not a valid property."
@@ -121,26 +107,6 @@ LightField/:MakeBoxes[
   ];
   BoxForm`ArrangeSummaryBox[LightField,obj,icon,alwaysGrid,sometimesGrid,fmt]
 ]
-
-
-HoldPattern@LightFieldQ[
-  LightField["MonochromaticPlaneComplex",
-    KeyValuePattern[{
-      "Data"->_?MatrixQ,
-      "Wavelength"->_?lengthQuatityQ,
-      "PhysicalSize"->{_?lengthQuatityQ,_?lengthQuatityQ}
-    }]
-  ]
-]=True
-LightFieldQ[_]=False
-LightFieldQ[expr_,type_]:=LightFieldQ[expr] && getType[expr]===type
-
-SetAttributes[holdLightFieldQ,HoldAllComplete]
-holdLightFieldQ[expr_]:=LightFieldQ[Unevaluated[expr]]
-
-
-LightFieldConvert[obj_,_]:=obj(*empty implementation*)
-LightFieldConvert[obj_,_,_]:=obj
 
 
 spectrumColor[wavelength_]:=With[
