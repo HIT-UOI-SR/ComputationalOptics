@@ -3,8 +3,10 @@ Package["ComputationalOptics`"]
 (*export*)
 PackageExport["ComputationalOptics`TransformUtils`FourierShift"]
 PackageScope["opticalFourier"]
+(*Fourier*)
 
 (*import*)
+PackageImport["GeneralUtilities`"]
 PackageScope["objectOptionValue"]
 
 
@@ -31,3 +33,19 @@ FourierShift[img_?ImageQ]:=
     ]
 
 opticalFourier[data_?ArrayQ]:=FourierShift@Fourier[data,FourierParameters->{1,-1}]
+
+$overrideFourier=True;
+oldFourierOptions=Options[Fourier];
+GeneralUtilities`BlockProtected[{Fourier},
+  Options[Fourier]=Append[oldFourierOptions, "ShiftData"->False];
+  Fourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=Block[
+    {$overrideFourier=False},
+    If[OptionValue["ShiftData"],
+      FourierShift,
+      Identity
+    ]@Fourier[data,
+      Sequence@@FilterRules[{opt},oldFourierOptions]
+    ]
+  ];
+]
+

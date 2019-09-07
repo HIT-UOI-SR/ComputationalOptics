@@ -19,7 +19,9 @@ Paclet[
         "ComputationalOptics`Propagation`Fresnel1",
         "ComputationalOptics`Propagation`Fresnel2",
         "ComputationalOptics`TransformUtils`FourierShift",
-        "ComputationalOptics`TransformUtils`InverseFourierShift"
+        "ComputationalOptics`TransformUtils`InverseFourierShift",
+        "System`Fourier",
+        "System`InverseFourier"
       }
     }
   }

@@ -3,8 +3,10 @@ Package["ComputationalOptics`"]
 (*export*)
 PackageExport["ComputationalOptics`TransformUtils`InverseFourierShift"]
 PackageScope["opticalInverseFourier"]
+(*InverseFourier*)
 
 (*import*)
+PackageImport["GeneralUtilities`"]
 PackageScope["objectOptionValue"]
 
 
@@ -31,3 +33,20 @@ InverseFourierShift[img_?ImageQ]:=
     ]
 
 opticalInverseFourier[data_?ArrayQ]:=InverseFourier[InverseFourierShift@data,FourierParameters->{1,-1}]
+
+$overrideFourier=True;
+oldFourierOptions=Options[InverseFourier];
+GeneralUtilities`BlockProtected[{InverseFourier},
+  Options[InverseFourier]=Append[oldFourierOptions, "ShiftData"->False];
+  InverseFourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=Block[
+    {$overrideFourier=False},
+    InverseFourier[
+      If[OptionValue["ShiftData"],
+        InverseFourierShift,
+        Identity
+      ]@data,
+      Sequence@@FilterRules[{opt},oldFourierOptions]
+    ]
+  ];
+]
+
