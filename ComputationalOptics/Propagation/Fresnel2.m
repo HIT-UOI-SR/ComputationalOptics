@@ -21,7 +21,7 @@ GeneralUtilities`SetUsage[Fresnel2,
   is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of convolution."
 ]
 
-tf:=GeneralUtilities`Memoized@FunctionCompile@Function[{
+tf:=tf=FunctionCompile@Function[{
   Typed[lambda,"Real64"],
   Typed[d,"Real64"],
   Typed[w,"Real64"],

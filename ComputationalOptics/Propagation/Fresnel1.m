@@ -20,7 +20,7 @@ GeneralUtilities`SetUsage[Fresnel1,
    is a low-level method to calculate the propagation light field based on the Fresnel diffraction in the form of Fourier transform."
 ]
 
-qPhase:=GeneralUtilities`Memoized@FunctionCompile@Function[{
+qPhase:=qPhase=FunctionCompile@Function[{
   Typed[lambda,"Real64"],
   Typed[d,"Real64"],
   Typed[w,"Real64"],
