@@ -32,7 +32,7 @@ tf:=tf=FunctionCompile@Function[{
 ]
 iAngularSpectrum[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=
     opticalInverseFourier[opticalFourier[input]tf[lambda,d,w,l,nw,nl]]
-AngularSpectrum[input_?MatrixQ,lambda_?Positive,d_?realQ]:=GeneralUtilities`Scope[
+AngularSpectrum[input_?MatrixQ,lambda_?Positive,d_?realQ]:=Block[{w,l},
   {w,l}=Dimensions[input];
   iAngularSpectrum[input,nVal@{lambda,d,w,l},{w,l}]
 ]

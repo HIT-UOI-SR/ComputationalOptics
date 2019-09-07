@@ -33,27 +33,27 @@ Options[Propagation]={
 
 
 $lastMethod=Automatic
-resolvePropagtionMethod["AngularSpectrum",_]:=GeneralUtilities`Scope[
+resolvePropagtionMethod["AngularSpectrum",_]:=Block[{},
   $lastMethod^="AngularSpectrum";
   AngularSpectrum
 ]
-resolvePropagtionMethod["Fresnel",_]:=GeneralUtilities`Scope[
+resolvePropagtionMethod["Fresnel",_]:=Block[{},
   $lastMethod^="Fresnel";
   Fresnel2
 ]
-resolvePropagtionMethod["FresnelFourier",_]:=GeneralUtilities`Scope[
+resolvePropagtionMethod["FresnelFourier",_]:=Block[{},
   $lastMethod^="FresnelFourier";
   Fresnel1
 ]
 resolvePropagtionMethod[Inherited,type_]:=resolvePropagtionMethod[$lastMethod,type]
-resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=GeneralUtilities`Scope[
+resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=Block[{},
   $lastMethod^="AngularSpectrum";
   AngularSpectrum
 ]
 
 $outputPhysicalSize=.
-iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=GeneralUtilities`Scope[
-  output=input;
+iPropagation[method_,d_,input_/;input@"Type"==="MonochromaticPlaneComplex"]:=Block[
+  {output=input,data},
   $outputPhysicalSize=input@"PhysicalSize";
   data=method[input@"Data",input@"Wavelength",d,input@"PhysicalSize"];
   If[FailureQ@data,

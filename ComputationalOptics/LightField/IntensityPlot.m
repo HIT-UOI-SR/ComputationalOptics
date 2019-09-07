@@ -22,7 +22,7 @@ spectrumColor[wavelength_]:=With[
 ]
 
 IntensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],opt:OptionsPattern[MatrixPlot]]:=
-    GeneralUtilities`Scope[
+    Block[{wx,wy,lambda},
       {wx,wy}=nVal@obj["PhysicalSize"];
       lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
       MatrixPlot[

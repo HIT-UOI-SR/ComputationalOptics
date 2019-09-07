@@ -32,10 +32,11 @@ qPhase:=qPhase=FunctionCompile@Function[{
     {y,-l/2.,l/2.-l/nl,l/nl}
   ]
 ]
-iFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=GeneralUtilities`Scope[
+iFresnel1[input_,{lambda_,d_,w_,l_},{nw_,nl_}]:=Block[
+  {q1,q2,dw,dl,w2,l2},
   q1=qPhase[lambda,d,w,l,nw,nl];
   {dw,dl}={w,l}/{nw,nl};
-  $outputPhysicalSize^={w2,l2}=lambda d/{dw,dl};
+  $outputPhysicalSize={w2,l2}=lambda d/{dw,dl};
   q2=qPhase[lambda,d,w2,l2,nw,nl]Exp[2Pi I d/lambda]/(I lambda d);
   opticalFourier[input*q1]*dw*dl*q2
 ]

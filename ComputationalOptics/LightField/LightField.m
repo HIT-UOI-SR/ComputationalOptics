@@ -92,7 +92,8 @@ Language`SetMutationHandler[LightField,mutationHandler]
 LightField/:MakeBoxes[
   obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],
   fmt_
-]/;BoxForm`UseIcons&&LightFieldQ[obj]:=ModuleScope[
+]/;BoxForm`UseIcons&&LightFieldQ[obj]:=Module[
+  {alwaysGrid,sometimesGrid,icon},
   alwaysGrid={
     BoxForm`SummaryItem@{"Type: ",obj["Type"]},
     BoxForm`SummaryItem@{"Wavelength: ",obj["Wavelength"]}
