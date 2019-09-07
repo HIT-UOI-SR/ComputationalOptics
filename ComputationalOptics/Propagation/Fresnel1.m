@@ -1,4 +1,4 @@
-Package["ComputationalOptics`Propagation`"]
+Package["ComputationalOptics`"]
 
 (*export*)
 PackageExport["ComputationalOptics`Propagation`Fresnel1"]
