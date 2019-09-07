@@ -1,11 +1,13 @@
 Package["ComputationalOptics`"]
 
+(*export*)
 PackageExport["LightField"]
 
+(*import*)
 PackageImport["GeneralUtilities`"]
 PackageExport["LightFieldQ"]
+PackageScope["IntensityPlot"]
 PackageScope["holdLightFieldQ"]
-PackageScope["nVal"]
 PackageScope["lengthQuatityQ"]
 
 Unprotect[LightField]
@@ -21,7 +23,6 @@ LightField::ptprop="`1` is not a valid property."
 LightField::setptv="`1` is not a valid data in part assignment."
 LightField::setptp="`1` is not a valid property in part assignment."
 LightField::setptvp="`1` is not a valid value for `2` in part assignment."
-LightField::intplot="Cannot plot the intensity of light field with the type `1`."
 
 
 $types=<|
@@ -76,7 +77,7 @@ setProperty[sym_Symbol,prop_,val_]:=Block[
 
 (obj_LightField?LightFieldQ)["Type"]:=getType[obj]
 (obj_LightField?LightFieldQ)["Properties"]:=Keys@getProperty[obj,All]
-(obj_LightField?LightFieldQ)["IntensityPlot",opt:OptionsPattern[MatrixPlot]]:=intensityPlot[obj,opt]
+(obj_LightField?LightFieldQ)["IntensityPlot",opt:OptionsPattern[MatrixPlot]]:=IntensityPlot[obj,opt]
 (obj_LightField?LightFieldQ)[prop_]:=getProperty[obj,prop]
 
 SetAttributes[mutationHandler,HoldAllComplete]
@@ -107,32 +108,5 @@ LightField/:MakeBoxes[
   ];
   BoxForm`ArrangeSummaryBox[LightField,obj,icon,alwaysGrid,sometimesGrid,fmt]
 ]
-
-
-spectrumColor[wavelength_]:=With[
-  {base=ColorData["VisibleSpectrum"][wavelength]},
-  If[ColorDistance[Black, base]>0.5,
-    Darker[base,Clip[1-#,{0,1}]]&,
-    GrayLevel
-  ]
-]
-intensityPlot[obj:HoldPattern@LightField["MonochromaticPlaneComplex",_],opt:OptionsPattern[MatrixPlot]]:=
-  GeneralUtilities`Scope[
-    {wx,wy}=nVal@obj["PhysicalSize"];
-    lambda=QuantityMagnitude[obj["Wavelength"],"Nanometers"];
-    MatrixPlot[
-      Abs[obj["Data"]]^2,
-      Normal@Merge[{
-        DataRange->{{-wx/2,wx/2},{-wy/2,wy/2}},
-        FrameTicks->{True,True},
-        ColorFunction->spectrumColor[lambda],
-        ColorFunctionScaling->True,
-        PlotLegends->Automatic,
-        opt
-      },Last]
-    ]
-  ]
-intensityPlot[obj_LightField,___]:=(Message[LightField::intplot,getType@obj];$Failed)
-
 
 Protect[LightField]

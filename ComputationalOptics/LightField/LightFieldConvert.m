@@ -1,6 +1,12 @@
 Package["ComputationalOptics`"]
 
+(*export*)
 PackageExport["LightFieldConvert"]
+
+(*import*)
+PackageImport["GeneralUtilities`"]
+
+
 SetAttributes[LightFieldConvert,ReadProtected]
 GeneralUtilities`SetUsage[LightFieldConvert,
   "LightFieldConvert[field$, type$] convert light field$ to type$.",

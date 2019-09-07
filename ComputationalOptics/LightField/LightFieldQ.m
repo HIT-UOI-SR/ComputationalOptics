@@ -1,9 +1,10 @@
 Package["ComputationalOptics`"]
 
+(*export*)
 PackageExport["LightFieldQ"]
 PackageScope["holdLightFieldQ"]
 
-(*external*)
+(*import*)
 PackageImport["GeneralUtilities`"]
 PackageExport["LightField"]
 PackageScope["lengthQuatityQ"]

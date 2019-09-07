@@ -1,16 +1,16 @@
 Package["ComputationalOptics`"]
 
+(*export*)
 PackageExport["Propagation"]
+PackageScope["$outputPhysicalSize"]
 
+(*import*)
 PackageImport["GeneralUtilities`"]
-PackageImport["ComputationalOptics`Propagation`"]
-
 PackageExport["LightField"]
 PackageExport["LightFieldQ"]
-PackageExport["PropagationAS"]
-PackageExport["PropagationFresnel1"]
-PackageExport["PropagationFresnel2"]
-
+PackageExport["ComputationalOptics`Propagation`AngularSpectrum"]
+PackageExport["ComputationalOptics`Propagation`Fresnel1"]
+PackageExport["ComputationalOptics`Propagation`Fresnel2"]
 PackageScope["opticalFourier"]
 PackageScope["opticalInverseFourier"]
 PackageScope["realQ"]
@@ -35,20 +35,20 @@ Options[Propagation]={
 $lastMethod=Automatic
 resolvePropagtionMethod["AngularSpectrum",_]:=GeneralUtilities`Scope[
   $lastMethod^="AngularSpectrum";
-  PropagationAS
+  AngularSpectrum
 ]
 resolvePropagtionMethod["Fresnel",_]:=GeneralUtilities`Scope[
   $lastMethod^="Fresnel";
-  PropagationFresnel2
+  Fresnel2
 ]
 resolvePropagtionMethod["FresnelFourier",_]:=GeneralUtilities`Scope[
   $lastMethod^="FresnelFourier";
-  PropagationFresnel1
+  Fresnel1
 ]
 resolvePropagtionMethod[Inherited,type_]:=resolvePropagtionMethod[$lastMethod,type]
 resolvePropagtionMethod[Automatic,"MonochromaticPlaneComplex"]:=GeneralUtilities`Scope[
   $lastMethod^="AngularSpectrum";
-  PropagationAS
+  AngularSpectrum
 ]
 
 $outputPhysicalSize=.
@@ -72,13 +72,4 @@ Propagation[input_?LightFieldQ,d_?lengthQuatityQ,opt:OptionsPattern[]]:=Catch[
     input
   ],
   Propagation
-]
-
-$FresnelCondChecked=False
-checkFresnelCond[lambda_,d_,w_,l_]/;$FresnelCondChecked:=True
-checkFresnelCond[lambda_,d_,w_,l_]:=GeneralUtilities`Scope[
-  If[d^3<1/(16lambda)*(w^2+l^2)^2,
-    Message[Propagation::frescond,d]
-  ];
-  True
 ]
