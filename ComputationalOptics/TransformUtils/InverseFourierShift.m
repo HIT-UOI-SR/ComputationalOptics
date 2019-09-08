@@ -37,15 +37,18 @@ opticalInverseFourier[data_?ArrayQ]:=InverseFourier[InverseFourierShift@data,Fou
 $overrideFourier=True;
 oldFourierOptions=Options[InverseFourier];
 GeneralUtilities`BlockProtected[{InverseFourier},
+  InverseFourier::sbool="`1` should be a boolean value.";
   Options[InverseFourier]=Append[oldFourierOptions, "ShiftData"->False];
-  InverseFourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=Block[
-    {$overrideFourier=False},
-    InverseFourier[
-      If[OptionValue["ShiftData"],
-        InverseFourierShift,
-        Identity
-      ]@data,
-      Sequence@@FilterRules[{opt},oldFourierOptions]
+  InverseFourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=GeneralUtilities`CatchFailureAsMessage[
+    Block[{$overrideFourier=False},
+      InverseFourier[
+        If[OptionValue["ShiftData"],
+          InverseFourierShift,
+          Identity,
+          GeneralUtilities`ThrowFailure[InverseFourier::sbool,OptionValue["ShiftData"]]
+        ]@data,
+        Sequence@@FilterRules[{opt},oldFourierOptions]
+      ]
     ]
   ];
 ]

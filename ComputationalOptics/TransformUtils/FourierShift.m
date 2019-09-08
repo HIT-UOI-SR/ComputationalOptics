@@ -37,14 +37,17 @@ opticalFourier[data_?ArrayQ]:=FourierShift@Fourier[data,FourierParameters->{1,-1
 $overrideFourier=True;
 oldFourierOptions=Options[Fourier];
 GeneralUtilities`BlockProtected[{Fourier},
+  Fourier::sbool="`1` should be a boolean value.";
   Options[Fourier]=Append[oldFourierOptions, "ShiftData"->False];
-  Fourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=Block[
-    {$overrideFourier=False},
-    If[OptionValue["ShiftData"],
-      FourierShift,
-      Identity
-    ]@Fourier[data,
-      Sequence@@FilterRules[{opt},oldFourierOptions]
+  Fourier[data_,opt:OptionsPattern[]]/;TrueQ[$overrideFourier]:=GeneralUtilities`CatchFailureAsMessage[
+    Block[{$overrideFourier=False},
+      If[OptionValue["ShiftData"],
+        FourierShift,
+        Identity,
+        GeneralUtilities`ThrowFailure[Fourier::sbool,OptionValue["ShiftData"]]
+      ]@Fourier[data,
+        Sequence@@FilterRules[{opt},oldFourierOptions]
+      ]
     ]
   ];
 ]
