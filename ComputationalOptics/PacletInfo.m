@@ -5,6 +5,7 @@ Paclet[
   WolframVersion->"12+",
   Creator->"miRoox <miRoox@outlook.com>",
   Description->"Computational optics toolkit.",
+  "Licence"->"MIT License",
   Loading->Automatic,
   Extensions->{
     {
